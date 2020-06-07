@@ -1,0 +1,44 @@
+<annotation>
+  <folder>kitti</folder>
+  <filename>004087.png</filename>
+  <source>
+    <database>kitti Database</database>
+    <annotation>kitti</annotation>
+    <image>flickr</image>
+    <flickrid>-1</flickrid>
+  </source>
+  <owner>
+    <flickrid>muke</flickrid>
+    <name>muke</name>
+  </owner>
+  <size>
+    <width>1242</width>
+    <height>375</height>
+    <depth>3</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>Van</name>
+    <pose>Unspecified</pose>
+    <truncated>1</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>539</xmin>
+      <ymin>129</ymin>
+      <xmax>639</xmax>
+      <ymax>201</ymax>
+    </bndbox>
+  </object>
+  <object>
+    <name>Car</name>
+    <pose>Unspecified</pose>
+    <truncated>1</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>391</xmin>
+      <ymin>170</ymin>
+      <xmax>438</xmax>
+      <ymax>209</ymax>
+    </bndbox>
+  </object>
+</annotation>

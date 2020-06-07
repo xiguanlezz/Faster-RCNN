@@ -1,0 +1,44 @@
+<annotation>
+  <folder>kitti</folder>
+  <filename>005945.png</filename>
+  <source>
+    <database>kitti Database</database>
+    <annotation>kitti</annotation>
+    <image>flickr</image>
+    <flickrid>-1</flickrid>
+  </source>
+  <owner>
+    <flickrid>muke</flickrid>
+    <name>muke</name>
+  </owner>
+  <size>
+    <width>1242</width>
+    <height>375</height>
+    <depth>3</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>Pedestrian</name>
+    <pose>Unspecified</pose>
+    <truncated>1</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>765</xmin>
+      <ymin>162</ymin>
+      <xmax>785</xmax>
+      <ymax>218</ymax>
+    </bndbox>
+  </object>
+  <object>
+    <name>Pedestrian</name>
+    <pose>Unspecified</pose>
+    <truncated>1</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>789</xmin>
+      <ymin>164</ymin>
+      <xmax>808</xmax>
+      <ymax>217</ymax>
+    </bndbox>
+  </object>
+</annotation>

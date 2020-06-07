@@ -1,0 +1,44 @@
+<annotation>
+  <folder>kitti</folder>
+  <filename>003191.png</filename>
+  <source>
+    <database>kitti Database</database>
+    <annotation>kitti</annotation>
+    <image>flickr</image>
+    <flickrid>-1</flickrid>
+  </source>
+  <owner>
+    <flickrid>muke</flickrid>
+    <name>muke</name>
+  </owner>
+  <size>
+    <width>1242</width>
+    <height>375</height>
+    <depth>3</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>Car</name>
+    <pose>Unspecified</pose>
+    <truncated>1</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>400</xmin>
+      <ymin>185</ymin>
+      <xmax>511</xmax>
+      <ymax>261</ymax>
+    </bndbox>
+  </object>
+  <object>
+    <name>Car</name>
+    <pose>Unspecified</pose>
+    <truncated>1</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>487</xmin>
+      <ymin>179</ymin>
+      <xmax>550</xmax>
+      <ymax>228</ymax>
+    </bndbox>
+  </object>
+</annotation>
