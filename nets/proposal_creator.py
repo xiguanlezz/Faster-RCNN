@@ -71,7 +71,7 @@ class ProposalCreator():
         roi = roi[order, :]
 
         # 非极大值抑制
-        roi_after_nms = non_maximum_suppression(roi, self.nms_thresh)
+        roi_after_nms = non_maximum_suppression(roi, thresh=self.nms_thresh)
         # 保留固定数量 训练2000
         roi_after_nms = roi_after_nms[:n_post_nms]
 

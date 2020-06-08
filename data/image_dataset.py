@@ -29,6 +29,8 @@ class ImageDataset(Dataset):
         self.boxes = boxes
         self.labels = labels
         self.images = images
+        id_list_files = os.path.join(txt_root_dir, txt_file)
+        self.ids = [id_.strip() for id_ in open(id_list_files)]
 
     def load_txt(self, filename):
         """
@@ -68,7 +70,7 @@ class ImageDataset(Dataset):
         print('the length of boxes is ', len(boxes))
         print('the length of labels is ', len(labels))
         print('the length of images is ', len(images))
-        return np.array(boxes), np.array(labels), np.array(images)
+        return boxes, labels, images
 
     def load_xml(self, filename):
         path = os.path.join(self.xml_root_dir, filename)
@@ -76,15 +78,19 @@ class ImageDataset(Dataset):
             return
         boxes, labels = parse_xml(path)
         images = (self.img_root_dir + filename.replace('.xml', '.png'))
-        return boxes, labels, images
+        return np.stack(boxes).astype(np.float32), \
+               np.stack(labels).astype(np.int32), \
+               images
 
     def __len__(self):
         return len(self.images)
 
     def __getitem__(self, index):
-        box = self.boxes[index]
-        label = self.labels[index]
-        img_tensor = self.transform(self.images[index])
+        id = self.ids[index]
+        box, label, image = self.load_xml('{0}.xml'.format(id))
+        # box = self.boxes[index]
+        # label = self.labels[index]
+        img_tensor = self.transform(image)
         return {
             "img_tensor": img_tensor,
             "img_classes": label,

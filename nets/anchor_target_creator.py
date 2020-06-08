@@ -39,16 +39,16 @@ class AnchorTargetCreator():
         argmax_ious, labels = self._create_label(inside_anchors, boxes)
 
         # 计算inside_anchors和对应iou最大的boxes的回归值
-        locas = box2loc(inside_anchors, boxes[argmax_ious])
+        locs = box2loc(inside_anchors, boxes[argmax_ious])
 
         # 把inside_anchors重新展开回原来所有的anchors
         anchor_labels = np.empty((len(anchors),), dtype=labels.dtype)
         anchor_labels.fill(-1)
         anchor_labels[inside_index] = labels
         # 利用broadcast重新展开locs
-        anchor_locs = np.empty((len(anchors),) + anchors.shape[1:], dtype=locas.dtype)
+        anchor_locs = np.empty((len(anchors),) + anchors.shape[1:], dtype=locs.dtype)
         anchor_locs.fill(0)
-        anchor_locs[inside_index, :] = locas
+        anchor_locs[inside_index, :] = locs
         return anchor_locs, anchor_labels
 
     def _calculate_iou(self, inside_anchors, boxes):
@@ -86,7 +86,7 @@ class AnchorTargetCreator():
             argmax_ious: 每个先验框对应的iou最大的真实框的索引, 维度为: [inside_anchors_num, 1]
             label: 为每个inside_anchors创建的label, 维度为: [inside_anchors_num, 1]
         """
-        label = np.empty((len(inside_anchors)), dtype=np.int)
+        label = np.empty((len(inside_anchors)), dtype=np.int32)
         # 先将label初始化为-1
         label.fill(-1)
 

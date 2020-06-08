@@ -21,8 +21,8 @@ class RoIPooling2D(nn.Module):
         :param rois: 采样后的roi
         :return:
         """
-        rois = torch.from_numpy(rois).float()
-        rois = rois.mul(self.spatial_scale)
+        rois_ = torch.from_numpy(rois).float()
+        rois = rois_.mul(self.spatial_scale)
         rois = rois.long()
 
         num_rois = rois.size(0)

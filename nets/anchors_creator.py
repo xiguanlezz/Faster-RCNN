@@ -43,34 +43,34 @@ def enumerate_shifted_anchor(base_anchor, base_size, width, height):
     # 计算featuremap中每个像素点在原图中感受野上的中心点坐标
     shift_x = np.arange(0, width * base_size, base_size)
     shift_y = np.arange(0, height * base_size, base_size)
-    # shift_x, shift_y = np.meshgrid(shift_x, shift_y)
+    shift_x, shift_y = np.meshgrid(shift_x, shift_y)
     print('shift_x: ', shift_x.shape, 'shift_y: ', shift_y.shape)
 
     # TODO 感觉最正统的方法还是遍历中心点
-    index = 0
-    for x in shift_x:
-        for y in shift_y:
-            anchors = generate_base_anchors(center_x=x, center_y=y)
-            if index == 0:
-                old_anchors = anchors
-            else:
-                anchors = np.concatenate((old_anchors, anchors), axis=0)
-                old_anchors = anchors
-            index += 1
+    # index = 0
+    # for x in shift_x:
+    #     for y in shift_y:
+    #         anchors = generate_base_anchors(center_x=x, center_y=y)
+    #         if index == 0:
+    #             old_anchors = anchors
+    #         else:
+    #             anchors = np.concatenate((old_anchors, anchors), axis=0)
+    #             old_anchors = anchors
+    #         index += 1
 
     # TODO 直接利用broadcast貌似也可以达到目的
     # shift_x.ravel()表示原地将为一维数组, shift的维度为: [feature_stride, 4]
-    # shift = np.stack((shift_x.ravel(), shift_y.ravel(), shift_x.ravel(), shift_y.ravel(),), axis=1)
+    shift = np.stack((shift_x.ravel(), shift_y.ravel(), shift_x.ravel(), shift_y.ravel(),), axis=1)
 
     # print("base_anchor: ", base_anchor.shape)
     # print("shift: ", shift.shape)
     # 9个先验框
-    # A = base_anchor.shape[0]
-    # K = shift.shape[0]
-    # anchor = base_anchor.reshape((1, A, 4)) + shift.reshape((K, 1, 4))
+    A = base_anchor.shape[0]
+    K = shift.shape[0]
+    anchor = base_anchor.reshape((1, A, 4)) + shift.reshape((K, 1, 4))
 
     # 最后再合成为所有的先验框, 相当于对featuremap的每个像素点都生成k(9)个先验框(anchors)
-    # anchor = anchor.reshape((K * A, 4)).astype(np.float32)
+    anchors = anchor.reshape((K * A, 4)).astype(np.float32)
     print('result: ', anchors.shape)
     return anchors
 

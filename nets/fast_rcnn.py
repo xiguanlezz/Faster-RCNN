@@ -1,11 +1,6 @@
 from torch import nn
 from nets.roi_pooling_2d import RoIPooling2D
 from nets.vgg16 import decom_VGG16
-from nets.rpn import RPN
-# from nets.anchors_creator import generate_base_anchors
-# from nets.proposal_creator import
-from nets.anchor_target_creator import AnchorTargetCreator
-from nets.proposal_target_creator import ProposalTargetCreator
 from utils.util import normal_init
 
 

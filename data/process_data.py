@@ -2,6 +2,7 @@ from lxml import etree as ET
 import glob
 import cv2
 import random
+from configs.config import KITTI_BBOX_LABEL_NAMES
 
 
 def write_xml(filename, saveimg, typename, boxes, xmlpath):
@@ -90,7 +91,8 @@ def parse_xml(filename):
     for obj in xml_file.findall('object'):
         bndbox = obj.find('bndbox')
         boxes.append([int(bndbox.find(tag).text) - 1 for tag in ('xmin', 'ymin', 'xmax', 'ymax')])
-        labels.append(obj.find('name').text.lower().strip())
+        label = obj.find('name').text.lower().strip()
+        labels.append(KITTI_BBOX_LABEL_NAMES.index(label))
     return boxes, labels
 
 

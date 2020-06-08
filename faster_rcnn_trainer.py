@@ -6,6 +6,7 @@ import time
 import os
 from nets.faster_rcnn import FasterRCNN
 from data.image_dataset import ImageDataset
+from configs.config import epochs
 
 
 class FasterRCNNTrainer(nn.Module):
@@ -107,18 +108,19 @@ class FasterRCNNTrainer(nn.Module):
 
 
 if __name__ == '__main__':
+    device = torch.device('cuda')
     path = 'pre_model_weights/vgg16-397923af.pth'
-    faster_rcnn = FasterRCNN(path)
+    faster_rcnn = FasterRCNN(path).to(device)
     trainer = FasterRCNNTrainer(faster_rcnn)
     # TODO 凭什么这里加的是相对faster_rcnn_trainer.py的文件
     dataset = ImageDataset('./kitti/Annotations/', './kitti/JPEGImages/data_object_image_2/training/image_2/',
                            './kitti/ImageSets/Main/', 'train.txt')
     loader = DataLoader(dataset, batch_size=1, shuffle=True)
-    for i, sample in enumerate(loader):
-        x = sample['img_tensor']
-        gt_boxes = sample['img_gt_boxes']
-        # print(gt_boxes)
-        labels = sample['img_classes']
-        losses = trainer.train_step(x, gt_boxes, labels)
-        if i == 2:
-            break
+    for epoch in range(epochs):
+        for i, sample in enumerate(loader):
+            x = sample['img_tensor'].to(device)
+            gt_boxes = sample['img_gt_boxes'].to(device)
+            # print(gt_boxes)
+            labels = sample['img_classes'].to(device)
+            losses = trainer.train_step(x, gt_boxes, labels)
+            print('after ', i, 'step: loss=', losses)

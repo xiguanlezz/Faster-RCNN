@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from nets.anchors_creator import generate_base_anchors, enumerate_shifted_anchor
 from nets.proposal_creator import ProposalCreator
 from utils.util import normal_init
+from configs.config import anchors_ratios, anchors_scales, in_channels
 
 
 class RPN(nn.Module):
@@ -11,10 +12,8 @@ class RPN(nn.Module):
         super(RPN, self).__init__()
 
         self.in_channels = in_channels
-        # TODO 将该属性写到config中
-        self.anchor_scales = [8, 16, 32]
-        # TODO 将该属性写到config中
-        self.anchor_ratios = [0.5, 1, 2]
+        self.anchor_scales = anchors_scales
+        self.anchor_ratios = anchors_ratios
         # TODO 将该属性写到config中
         self.feature_stride = feature_stride
 
@@ -45,7 +44,6 @@ class RPN(nn.Module):
     def reshape(x, width):
         # input_size = x.size()
         # x = x.view(input_size[0], int(d), int(float(input_size[1] * input_size[2]) / float(d)), input_size[3])
-
         height = float(x.size(1) * x.size(1)) / width
         x = x.view(x.size(0), int(width), int(height), x.size(3))
         return x
@@ -73,7 +71,8 @@ class RPN(nn.Module):
         # 根据rpn回归的结果对anchors微调之后, 还需要提供roi给fastrcnn部分
         rois = self.proposal_layer(rpn_locs[0].detach().cpu().numpy(),
                                    rpn_scores[0].detach().cpu().numpy(),
-                                   anchors, img_size)
+                                   anchors,
+                                   img_size)
 
         return rpn_locs, rpn_scores, anchors, rois
 
