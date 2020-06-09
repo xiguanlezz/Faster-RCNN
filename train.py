@@ -4,6 +4,7 @@ from data.image_dataset import ImageDataset
 from torch.utils.data import DataLoader
 import torch
 from tqdm import tqdm
+import time
 
 
 @torch.no_grad()
@@ -41,10 +42,19 @@ def main():
     testLoader = DataLoader(testset, batch_size=1, shuffle=True, num_workers=0)
     trainer = trainer.to(device)
 
-    total_epochs = 4
+    already_trained_epoch = 1
+    if already_trained_epoch != 0:
+        file_name = "fasterrcnn_06091924-epoch-5-trainloss-1.015testloss-1.282"
+        load_path = 'checkpoints/' + file_name
+        trainer.load(load_path)
+        print("trained model loaded")
+        print("loaded model lr: ", trainer.optimizer.param_groups[0]["lr"])  # 导入模型的学习率
+
+    total_epochs = 10
     check_nums = 200
 
     for epoch in range(total_epochs):
+        start = time.time();
         running_loss = 0.0
         epoch_loss = 0.0
 
@@ -68,6 +78,8 @@ def main():
                      epoch=epoch + 1,
                      avg_train_loss=avg_epoch_loss,
                      avg_test_loss=avg_test_loss)
+        end = time.time()
+        print('after an epoch, time consumes ', end - start)
 
 
 if __name__ == '__main__':
