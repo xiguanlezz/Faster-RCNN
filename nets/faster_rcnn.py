@@ -1,4 +1,3 @@
-import torch
 from torch import nn
 import torch.nn.functional as F
 from nets.vgg16 import decom_VGG16
@@ -10,6 +9,8 @@ from utils.util import loc_loss
 from collections import namedtuple
 import torch
 from configs.config import class_num, in_channels
+from utils.util import loc2box, non_maximum_suppression
+import numpy as np
 
 LossTuple = namedtuple('LossTuple',
                        ['rpn_loc_loss',
@@ -43,6 +44,7 @@ class FasterRCNN(nn.Module):
         # -----------------part 2: rpn部分(output_1)----------------------
         img_size = (x.size(2), x.size(3))
         rpn_locs, rpn_scores, anchors, rois = self.rpn(h, img_size)
+        # gt_anchor_locs维度为: [anchors_num, 4], gt_anchor_labels维度为:[anchors_num, 1]
         gt_anchor_locs, gt_anchor_labels = self.anchor_target_creator(gt_boxes[0].detach().cpu().numpy(),
                                                                       anchors,
                                                                       img_size)
@@ -53,6 +55,7 @@ class FasterRCNN(nn.Module):
                                                                    labels[0].detach().cpu().numpy())
 
         # ---------------part 4: fast rcnn(roi)部分(output_2)------------
+        # roi_cls_locs维度为: [batch_size, 4], roi_scores维度为:[batch_size, 1]
         roi_cls_locs, roi_scores = self.fast_rcnn(h, sample_rois)
 
         # RPN LOSS
@@ -75,7 +78,78 @@ class FasterRCNN(nn.Module):
 
         return LossTuple(*losses)
 
+    @torch.no_grad()
+    def predict(self, x):
+        # 设置为测试模式, 改变rpn网络中n_post_nms的阈值为300
+        self.eval()
+
+        # -----------------part 1: feature 提取部分----------------------
+        h = self.extractor(x)
+        img_size = (x.size(2), x.size(3))
+
+        # ----------------------part 2: rpn部分--------------------------
+        rpn_locs, rpn_socres, anchors, rois = self.rpn(h, img_size)
+
+        # ------------------part 3: fast rcnn(roi)部分-------------------
+        # 先经过Roi pooling层, 在经过两个全连接层
+        roi_cls_locs, roi_scores = self.fast_rcnn(h, np.asarray(rois))
+        n_sample = roi_cls_locs.shape[0]
+
+        # --------------------part 4:boxes生成部分-----------------------
+        roi_cls_locs = roi_cls_locs.view(n_sample, -1, 4)
+        rois = torch.from_numpy(rois).to(device)
+        rois = rois.view(-1, 1, 4).expand_as(roi_cls_locs)
+        boxes = loc2box(rois.cpu().numpy().reshape((-1, 4)), roi_cls_locs.cpu().numpy().reshape((-1, 4)))
+        boxes = torch.from_numpy(boxes).to(device)
+        # 修剪boxes中的坐标, 使其落在图片内
+        boxes[:, [0, 2]] = (boxes[:, [0, 2]]).clamp(min=0, max=img_size[0])
+        boxes[:, [1, 3]] = (boxes[:, [1, 3]]).clamp(min=0, max=img_size[1])
+        boxes = boxes.view(n_sample, -1)
+
+        # roi_scores转换为概率, prob维度为[rois_num, 7]
+        prob = F.softmax(roi_scores, dim=1)
+
+        # ----------------part 5:筛选环节------------------------
+        raw_boxes = boxes.cpu().numpy()
+        raw_prob = prob.cpu().numpy()
+        final_boxes, labels, scores = self._suppress(raw_boxes, raw_prob)
+        self.train()
+        return final_boxes, labels, scores
+
+    def _suppress(self, raw_boxes, raw_prob):
+        # print(raw_prob.shape)
+        score_thresh = 0.7
+        nms_thresh = 0.3
+        n_class = 7
+        box = list()
+        label = list()
+        score = list()
+
+        for i in range(1, 7):
+            box_i = raw_boxes.reshape((-1, n_class, 4))
+            box_i = box_i[:, i, :]  # 维度为: [rois_num, k, 4]
+            prob_i = raw_prob[:, i]  # 维度为: [rois_num]
+            mask = prob_i > score_thresh
+            box_i = box_i[mask]
+            prob_i = prob_i[mask]
+            order = prob_i.argsort()[::-1]
+            # 按照score值从大到小进行排序
+            box_i = box_i[order]
+
+            box_i_after_nms, keep = non_maximum_suppression(box_i, nms_thresh)
+            box.append(box_i_after_nms)
+
+            label_i = (i - 1) * np.ones((len(keep),))
+            label.append(label_i)
+            score.append(prob_i[keep])
+
+        box = np.concatenate(box, axis=0).astype(np.float32)
+        label = np.concatenate(label, axis=0).astype(np.int32)
+        score = np.concatenate(score, axis=0).astype(np.float32)
+        return box, label, score
+
 
 if __name__ == '__main__':
     path = '../pre_model_weights/vgg16-397923af.pth'
     faster_rcnn = FasterRCNN(path)
+    # faster_rcnn.predict(torch.ones((1, 3, 224, 224)))

@@ -28,7 +28,7 @@ class AnchorTargetCreator():
         :param img_size: 原图的大小, 用来过滤掉出界的anchors
         :return:
             anchor_locs: 最终的坐标, 维度为[inside_anchors_num ,4]
-            anchor_labels: 最终的标签, 维度为[inside_anchors_num]
+            anchor_labels: 最终的标签, 维度为[inside_anchors_num, 1]
         """
         img_width, img_height = img_size
 

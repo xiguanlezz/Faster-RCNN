@@ -22,7 +22,7 @@ def evaluate_test_data(testLoader, trainer):
         loss = trainer(x, gt_boxes, labels).total_loss.item()
         test_loss += loss
         counter += 1
-    avg_test_loss = test_loss / counter
+    avg_test_loss = test_loss * 1.0 / counter
     return avg_test_loss
 
 
@@ -33,45 +33,46 @@ def main():
     faster_rcnn = FasterRCNN(path).to(device)
     trainer = FasterRCNNTrainer(faster_rcnn)
     # 训练集
-    trainset = ImageDataset('./kitti/Annotations/', './kitti/JPEGImages/data_object_image_2/training/image_2/',
-                            './kitti/ImageSets/Main/', 'train.txt')
-    trainLoader = DataLoader(trainset, batch_size=1, shuffle=True, num_workers=0)
+    trainvalset = ImageDataset('./kitti/Annotations/', './kitti/JPEGImages/data_object_image_2/training/image_2/',
+                               './kitti/ImageSets/Main/', 'trainval.txt')
+    trainvalLoader = DataLoader(trainvalset, batch_size=1, shuffle=True, num_workers=0)
     # 测试集
     testset = ImageDataset('./kitti/Annotations/', './kitti/JPEGImages/data_object_image_2/training/image_2/',
                            './kitti/ImageSets/Main/', 'test.txt')
     testLoader = DataLoader(testset, batch_size=1, shuffle=True, num_workers=0)
     trainer = trainer.to(device)
 
-    already_trained_epoch = 1
+    already_trained_epoch = 0
     if already_trained_epoch != 0:
-        file_name = "fasterrcnn_06091924-epoch-5-trainloss-1.015testloss-1.282"
+        file_name = "fasterrcnn_06101508-epoch-6-trainloss-0.204testloss-0.820"
         load_path = 'checkpoints/' + file_name
         trainer.load(load_path)
         print("trained model loaded")
         print("loaded model lr: ", trainer.optimizer.param_groups[0]["lr"])  # 导入模型的学习率
 
-    total_epochs = 10
-    check_nums = 200
+    # 调节学习率
+    change_lr = True
+    if change_lr:
+        scale = 0.4  # new_lr = lr* scale
+        trainer.scale_lr(scale)
+        print("learning rate be smaller")
+
+    total_epochs = 20
 
     for epoch in range(total_epochs):
-        start = time.time();
-        running_loss = 0.0
+        start = time.time()
         epoch_loss = 0.0
 
-        for i, sample in tqdm(enumerate(trainLoader)):
+        for i, sample in tqdm(enumerate(trainvalLoader)):
+            # print(sample["img_tensor"].size)
             x = sample["img_tensor"].to(device)
             gt_boxes = sample["img_gt_boxes"].to(device)
             labels = sample["img_classes"].to(device)
 
             loss = trainer.train_step(x, gt_boxes, labels)
-            running_loss += loss
             epoch_loss += loss
 
-            if (i + 1) % check_nums == 0:
-                avg_running_loss = running_loss / check_nums
-                running_loss = 0.0
-
-        avg_epoch_loss = epoch_loss / len(trainset)  # epoch平均loss
+        avg_epoch_loss = epoch_loss * 1.0 / len(trainvalLoader)  # epoch平均loss
 
         avg_test_loss = evaluate_test_data(testLoader, trainer)
         trainer.save(save_optimizer=True,

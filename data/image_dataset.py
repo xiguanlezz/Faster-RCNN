@@ -29,6 +29,7 @@ class ImageDataset(Dataset):
         self.boxes = boxes
         self.labels = labels
         self.images = images
+        # self.filenames = filenames
         id_list_files = os.path.join(txt_root_dir, txt_file)
         self.ids = [id_.strip() for id_ in open(id_list_files)]
 
@@ -45,6 +46,7 @@ class ImageDataset(Dataset):
         # labels = list()
         labels = []
         images = []
+        # filenames = []
         print(os.path.join(self.txt_root_dir, filename))
         with open(os.path.join(self.txt_root_dir, filename), mode='r') as f:
             lines = f.readlines()
@@ -66,6 +68,7 @@ class ImageDataset(Dataset):
                 boxes.append(box)
                 labels.append(label)
                 images.append(image)
+                # filenames.append(line.strip())
                 index += 1
         print('the length of boxes is ', len(boxes))
         print('the length of labels is ', len(labels))
@@ -92,6 +95,7 @@ class ImageDataset(Dataset):
         # label = self.labels[index]
         img_tensor = self.transform(image)
         return {
+            "img_name": id + ".png",
             "img_tensor": img_tensor,
             "img_classes": label,
             "img_gt_boxes": box
@@ -101,7 +105,7 @@ class ImageDataset(Dataset):
 if __name__ == '__main__':
     dataset = ImageDataset('../kitti/Annotations/', '../kitti/JPEGImages/data_object_image_2/training/image_2/',
                            '../kitti/ImageSets/Main/', 'test.txt')
-    loader = DataLoader(dataset, batch_size=2, shuffle=True)
+    loader = DataLoader(dataset, batch_size=1, shuffle=True)
     for index, sample in enumerate(loader):
         # sample是一个三个元素的tuple
         # 第一个元素是图片数据tensor，（1, 3, W, H）

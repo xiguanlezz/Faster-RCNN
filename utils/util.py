@@ -205,6 +205,8 @@ def non_maximum_suppression(roi, thresh):
     :param roi: 感兴趣的区域
     :param thresh: iou的阈值
     :return:
+        roi_after_nms: 经过阈值的NMS后剩下rois
+        keep: 经过阈值的NMS后剩下rois的索引
     """
     # 左上角点的坐标
     xmin = roi[:, 0]
@@ -234,4 +236,4 @@ def non_maximum_suppression(roi, thresh):
         idx = np.where(iou <= thresh)[0]  # 去掉和scores的iou大于阈值的roi
         order = order[1 + idx]  # 剔除score最大
     roi_after_nms = roi[keep]
-    return roi_after_nms
+    return roi_after_nms, keep

@@ -5,13 +5,17 @@ from utils.util import calculate_iou, box2loc
 class ProposalTargetCreator():
     def __init__(self, n_sample=128, pos_ratio=0.25, pos_iou_thresh=0.5, neg_iou_thresh_hi=0.5, neg_iou_thresh_lo=0.0):
         """
-        function description: 采样128个传入FastRCNN的网络
+        function description: 采样128正负样本个传入FastRCNN的网络
 
         :param n_sample: 需要采样的数量
         :param pos_ratio: 正样本比例
         :param pos_iou_thresh: 正样本阈值
         :param neg_iou_thresh_hi: 负样本最大阈值
         :param neg_iou_thresh_lo: 负样本最低阈值
+        :return:
+            sample_rois: 采样后的感兴趣区域
+            gt_roi_labels: boxes的标签
+            gt_roi_locs: sample_rois和boxes的线性回归值
         """
         self.n_sample = n_sample
         self.pos_ratio = pos_ratio
@@ -30,7 +34,6 @@ class ProposalTargetCreator():
         gt_assignment = ious.argmax(axis=1)  # 返回维度为[rois_num, 1]
         max_iou = ious.max(axis=1)
 
-        # 真实框的标签需要+1因为有背景存在
         gt_roi_labels = labels[gt_assignment]  # 返回维度为[rois_num, 1]
 
         # 筛选出其中iou满足阈值的部分

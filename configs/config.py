@@ -11,6 +11,10 @@ KITTI_BBOX_LABEL_NAMES = (
 )
 
 epochs = 5
+# 学习率
+lr = 0.005
+# 设置正则化的惩戒项的系数
+weight_decay = 0.01
 
 # rpn网络接受数据的维度, 即经过特征提取网络后输出的维度, vgg16是512
 in_channels = 512

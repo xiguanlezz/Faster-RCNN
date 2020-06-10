@@ -136,13 +136,14 @@ def split_dataset():
             write_xml(filename, saveimg, typename, boxes, xmlpath)
 
             index += 1
-            if index < len(list_anno_files) * 0.7:
-                train.write(filename.replace(".png", "\n"))
-            elif index < len(list_anno_files) * 0.9:
-                val.write(filename.replace(".png", "\n"))
-            else:
+            if index > len(list_anno_files) * 0.9:
                 test.write(filename.replace(".png", "\n"))
-
+            else:
+                trainval.write(filename.replace(".png", "\n"))
+                if index > len(list_anno_files) * 0.7:
+                    val.write(filename.replace(".png", "\n"))
+                else:
+                    train.write(filename.replace(".png", "\n"))
     train.close()
     val.close()
     test.close()

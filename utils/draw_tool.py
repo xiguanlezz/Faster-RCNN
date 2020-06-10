@@ -2,14 +2,17 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from PIL import Image
 import numpy as np
+import os
+
+classes = ['pedestrian', 'truck', 'car', 'cyclist', 'van', 'tram', 'person_sitting']
 
 
 def draw_predict(dir_path, img_name, boxes, labels, scores):
     classes = []
     file_path = dir_path + img_name
     im = np.array(Image.open(file_path))
-    fig, ax = plt.subplot(1)
-    ax.image(im)
+    fig, ax = plt.subplots(1)
+    ax.imshow(im)
     for i in range(len(boxes)):
         xmin = boxes[i][0]
         ymin = boxes[i][1]
@@ -19,6 +22,8 @@ def draw_predict(dir_path, img_name, boxes, labels, scores):
         rect = patches.Rectangle((xmin, ymin), width, height, linewidth=1, edgecolor='g', facecolor='none')
         ax.add_patch(rect)
         ax.text(xmin, ymin, text, frontsize=8, bbox=dict(facecolor='green', alpha=1))
-
-    plt.savefig("show_result/" + img_name + ".png")
+    savedir = "show_result/"
+    if (not os.path.exists(savedir)):
+        os.mkdir(savedir)
+    plt.savefig(savedir + img_name)
     plt.clf()

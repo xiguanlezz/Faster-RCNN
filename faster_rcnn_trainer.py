@@ -6,7 +6,7 @@ import time
 import os
 from nets.faster_rcnn import FasterRCNN
 from data.image_dataset import ImageDataset
-from configs.config import epochs
+from configs.config import epochs, lr, weight_decay
 
 
 class FasterRCNNTrainer(nn.Module):
@@ -14,13 +14,13 @@ class FasterRCNNTrainer(nn.Module):
         super(FasterRCNNTrainer, self).__init__()
 
         self.faster_rcnn = faster_rcnn
-        self.optimizer = self.get_optimizer()
+        self.optimizer = self.get_optimizer(lr=lr, weight_decay=weight_decay)
 
     def forward(self, x, gt_boxes, labels):
-        start = time.time()
+        # start = time.time()
         losses = self.faster_rcnn(x, gt_boxes, labels)
-        end = time.time()
-        print("FasterRcnn forward 时间消耗: %s seconds" % (end - start))
+        # end = time.time()
+        # print("FasterRcnn forward 时间消耗: %s seconds" % (end - start))
         return losses
 
     def train_step(self, x, gt_boxes, labels):
@@ -65,7 +65,7 @@ class FasterRCNNTrainer(nn.Module):
 
         if save_path is None:
             timestr = time.strftime('%m%d%H%M')
-            save_path = 'checkpoints/fasterrcnn_%s' % timestr
+            save_path = 'checkpoints/fasterrcnn_%s' % self.optimizer.param_groups[0]["lr"]
             save_path += '-epoch-%d' % (epoch)
             save_path += '-trainloss-%.3f' % (avg_train_loss)
             save_path += 'testloss-%.3f' % (avg_test_loss)
@@ -92,7 +92,7 @@ class FasterRCNNTrainer(nn.Module):
             self.optimizer.load_state_dict(state_dict['optimizer'])
         return self
 
-    def get_optimizer(self, lr=1e-3, weight_decay=0.0005, lr_decay=0.1, user_adam=False):
+    def get_optimizer(self, lr, weight_decay):
         params = []
         for key, value in dict(self.named_parameters()).items():
             if value.requires_grad:
@@ -100,10 +100,7 @@ class FasterRCNNTrainer(nn.Module):
                     params += [{'params': [value], 'lr': lr * 2, 'weight_decay': 0}]
                 else:
                     params += [{'params': [value], 'lr': lr, 'weight_decay': weight_decay}]
-        if user_adam:
-            self.optimizer = torch.optim.Adam(params)
-        else:
-            self.optimizer = torch.optim.SGD(params, momentum=0.9)
+        self.optimizer = torch.optim.SGD(params, momentum=0.9)
         return self.optimizer
 
 

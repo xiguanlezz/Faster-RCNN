@@ -15,10 +15,10 @@ class RoIPooling2D(nn.Module):
 
     def forward(self, x, rois):
         """
-        function description: 将原图中采样后的roi变换到featuremap中的对应位置
+        function description: 将roi的坐标映射到featuremap中的对应位置
 
         :param x: 预训练好的特征提取网络的输出即featuremap
-        :param rois: 采样后的roi
+        :param rois: 采样后的roi坐标
         :return:
         """
         rois_ = torch.from_numpy(rois).float()
