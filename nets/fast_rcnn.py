@@ -5,16 +5,19 @@ from utils.util import normal_init
 
 
 class FastRCNN(nn.Module):
-    def __init__(self, n_class, roi_size, spatial_scale, classifier):
+    def __init__(self,
+                 n_class,
+                 roi_size,
+                 spatial_scale,
+                 classifier):
         """
         function description:
-            将rpn网络提供的roi"投射"到vgg16的featuremap上, 进行相应的切割并
-            maxpooling(RoI maxpooling),再将其展开从2d变为1d,投入两个fc层,
-            然后再分别带入两个分支fc层，作为cls和reg的输出
+            将rpn网络提供的roi"投射"到vgg16的featuremap上, 进行相应的切割并maxpooling(RoI maxpooling),
+            再将其展开从2d变为1d,投入两个fc层,然后再分别带入两个分支fc层，作为cls和reg的输出
 
         :param n_class: 分类的总数
         :param roi_size: RoIPooling2D之后的维度
-        :param spatial_scale: roi(rpn推荐的区域-原图上的区域)投射在feature map后需要缩小的比例
+        :param spatial_scale: roi(rpn推荐的区域-原图上的区域)投射在feature map后需要缩小的比例, 这个个人感觉应该对应感受野大小
         :param classifier: 从vgg16提取的两层fc(Relu激活)
         """
         super(FastRCNN, self).__init__()
@@ -30,6 +33,15 @@ class FastRCNN(nn.Module):
         self.roi = RoIPooling2D((self.roi_size, self.roi_size), self.spatial_scale)
 
     def forward(self, x, sample_rois):
+        """
+        function decsription:
+
+        :param x: 预训练好的特征提取网络的输出即featuremap
+        :param sample_rois: 经过NMS后的rois
+        :return:
+            roi_locs: roi的回归损失
+            roi_scores: roi的分类损失
+        """
         pool = self.roi(x, sample_rois)
         pool = pool.view(pool.size(0), -1)
         fc7 = self.classifier(pool)

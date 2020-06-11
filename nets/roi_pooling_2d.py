@@ -4,7 +4,17 @@ import numpy as np
 
 
 class RoIPooling2D(nn.Module):
-    def __init__(self, output_size, spatial_scale, return_indices=False):
+    def __init__(self,
+                 output_size,
+                 spatial_scale,
+                 return_indices=False):
+        """
+        function description: 将
+
+        :param output_size:
+        :param spatial_scale: 需要根据rois的坐标放缩到featuremap中的比例
+        :param return_indices:
+        """
         super(RoIPooling2D, self).__init__()
 
         self.output_size = output_size
@@ -51,4 +61,3 @@ if __name__ == '__main__':
     # print('before pooling:', sample_rois)
     output = roi_pooling_layer(x, sample_rois)
     # print('after pooling:', output)
-    # print(output.shape)

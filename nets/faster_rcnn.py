@@ -8,7 +8,7 @@ from nets.fast_rcnn import FastRCNN
 from utils.util import loc_loss
 from collections import namedtuple
 import torch
-from configs.config import class_num, in_channels
+from configs.config import class_num
 from utils.util import loc2box, non_maximum_suppression
 import numpy as np
 
@@ -28,7 +28,7 @@ class FasterRCNN(nn.Module):
         super(FasterRCNN, self).__init__()
 
         self.extractor, classifier = decom_VGG16(path)
-        self.rpn = RPN(in_channels=in_channels)
+        self.rpn = RPN()
         self.anchor_target_creator = AnchorTargetCreator()
         self.sample_rois = ProposalTargetCreator()
 
@@ -43,6 +43,10 @@ class FasterRCNN(nn.Module):
 
         # -----------------part 2: rpn部分(output_1)----------------------
         img_size = (x.size(2), x.size(3))
+        # rpn_locs维度为: [batch_size, w, h, 4*k], 类型是pytorch的张量
+        # rpn_scores维度为: [batch_size, w, h, k], 类型是pytorch的张量
+        # anchors维度为: [batch_size, w*h*k, 4], 类型是numpy数组
+        # rois维度为: [w*h*k ,4]
         rpn_locs, rpn_scores, anchors, rois = self.rpn(h, img_size)
         # gt_anchor_locs维度为: [anchors_num, 4], gt_anchor_labels维度为:[anchors_num, 1]
         gt_anchor_locs, gt_anchor_labels = self.anchor_target_creator(gt_boxes[0].detach().cpu().numpy(),

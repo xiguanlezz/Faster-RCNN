@@ -56,11 +56,21 @@ ww[index] = tt
 # random.shuffle(aa)
 # print(aa)
 
-bb = np.ones((300, 2, 3))
-zz = torch.from_numpy(np.array(bb))
-print(zz)
-cc = []
-dd = [4, 5, 6, 7]
-cc.append(bb)
-cc.append(dd)
-print(cc)
+# bb = np.ones((300, 2, 3))
+# zz = torch.from_numpy(np.array(bb))
+# print(zz)
+# cc = []
+# dd = [4, 5, 6, 7]
+# cc.append(bb)
+# cc.append(dd)
+# print(cc)
+
+x = [1, 3, 5, 7, 9]
+print(x[::-1])
+print(np.asarray(x).shape)
+
+y = [[3, 3, 4], [1, 2, 3], [4, 1]]
+print(len(y))
+
+z = np.asarray([1, 2, 3, 4])
+print(z.shape)

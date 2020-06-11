@@ -2,8 +2,13 @@ import numpy as np
 from utils.util import calculate_iou, box2loc
 
 
-class ProposalTargetCreator():
-    def __init__(self, n_sample=128, pos_ratio=0.25, pos_iou_thresh=0.5, neg_iou_thresh_hi=0.5, neg_iou_thresh_lo=0.0):
+class ProposalTargetCreator:
+    def __init__(self,
+                 n_sample=128,
+                 pos_ratio=0.25,
+                 pos_iou_thresh=0.5,
+                 neg_iou_thresh_hi=0.5,
+                 neg_iou_thresh_lo=0.0):
         """
         function description: 采样128正负样本个传入FastRCNN的网络
 
@@ -23,8 +28,22 @@ class ProposalTargetCreator():
         self.neg_iou_thresh_hi = neg_iou_thresh_hi
         self.neg_iou_thresh_lo = neg_iou_thresh_lo
 
-    def __call__(self, rois, boxes, labels, loc_normalize_mean=(0., 0., 0., 0.),
+    def __call__(self,
+                 rois,
+                 boxes,
+                 labels,
+                 loc_normalize_mean=(0., 0., 0., 0.),
                  loc_normalize_std=(0.1, 0.1, 0.2, 0.2)):
+        """
+        function description:
+
+        :param rois:
+        :param boxes:
+        :param labels:
+        :param loc_normalize_mean:
+        :param loc_normalize_std:
+        :return:
+        """
         n_bbox, _ = boxes.shape
 
         # 取到正样本的个数(四舍五入)

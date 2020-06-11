@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 
 def generate_base_anchors(base_size=16, ratios=[0.5, 1, 2], scales=[8, 16, 32], center_x=0, center_y=0):
@@ -43,7 +44,6 @@ def enumerate_shifted_anchor(base_anchor, base_size, width, height):
     # 计算featuremap中每个像素点在原图中感受野上的中心点坐标
     shift_x = np.arange(0, width * base_size, base_size)
     shift_y = np.arange(0, height * base_size, base_size)
-    shift_x, shift_y = np.meshgrid(shift_x, shift_y)
     print('shift_x: ', shift_x.shape, 'shift_y: ', shift_y.shape)
 
     # TODO 感觉最正统的方法还是遍历中心点
@@ -60,35 +60,30 @@ def enumerate_shifted_anchor(base_anchor, base_size, width, height):
 
     # TODO 直接利用broadcast貌似也可以达到目的
     # shift_x.ravel()表示原地将为一维数组, shift的维度为: [feature_stride, 4]
+    shift_x, shift_y = np.meshgrid(shift_x, shift_y)
     shift = np.stack((shift_x.ravel(), shift_y.ravel(), shift_x.ravel(), shift_y.ravel(),), axis=1)
-
-    # print("base_anchor: ", base_anchor.shape)
-    # print("shift: ", shift.shape)
-    # 9个先验框
-    A = base_anchor.shape[0]
+    A = base_anchor.shape[0]  # 9个先验框
     K = shift.shape[0]
     anchor = base_anchor.reshape((1, A, 4)) + shift.reshape((K, 1, 4))
-
     # 最后再合成为所有的先验框, 相当于对featuremap的每个像素点都生成k(9)个先验框(anchors)
     anchors = anchor.reshape((K * A, 4)).astype(np.float32)
-    print('result: ', anchors.shape)
     return anchors
 
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
+    start = time.time()
     nine_anchors = generate_base_anchors()
-    print(nine_anchors.shape)
 
     height, width, base_size = 38, 38, 16
     all_anchors = enumerate_shifted_anchor(nine_anchors, base_size, width, height)
-    print(38 * 38 * 9)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    plt.ylim(-500, 500)
-    plt.xlim(-500, 500)
+    # x坐标和y坐标在接近[-10, 600]左右可以画出全部坊featuremap的像素点
+    plt.ylim(-10, 600)
+    plt.xlim(-10, 600)
     shift_x = np.arange(0, width * base_size, base_size)
     shift_y = np.arange(0, height * base_size, base_size)
     shift_x, shift_y = np.meshgrid(shift_x, shift_y)
@@ -96,15 +91,12 @@ if __name__ == '__main__':
 
     box_widths = all_anchors[:, 2] - all_anchors[:, 0]
     box_heights = all_anchors[:, 3] - all_anchors[:, 1]
-    print(all_anchors)
+    print(all_anchors.shape)
 
-    for i in range(18):
-        print('width: ', box_widths[i], 'height: ', box_heights[i])
-        if i >= 9:
-            rect = plt.Rectangle([all_anchors[i, 0], all_anchors[i, 1]], box_widths[i],
-                                 box_heights[i], color="r", fill=False)
-        else:
-            rect = plt.Rectangle([all_anchors[i, 0], all_anchors[i, 1]], box_widths[i],
-                                 box_heights[i], color="b", fill=False)
+    for i in range(12996):
+        rect = plt.Rectangle([all_anchors[i, 0], all_anchors[i, 1]], box_widths[i],
+                             box_heights[i], color="r", fill=False)
         ax.add_patch(rect)
+    end = time.time()
+    print('all consumes {0} seconds'.format(end - start))
     plt.show()
