@@ -102,8 +102,8 @@ class ImageDataset(Dataset):
 
 
 if __name__ == '__main__':
-    dataset = ImageDataset('../kitti/Annotations/', '../kitti/JPEGImages/data_object_image_2/training/image_2/',
-                           '../kitti/ImageSets/Main/', 'test.txt')
+    dataset = ImageDataset(xml_root_dir='../kitti/Annotations/', img_root_dir='../kitti/JPEGImages/testing/',
+                           txt_root_dir='../kitti/ImageSets/Main/', txt_file='test.txt')
     loader = DataLoader(dataset, batch_size=1, shuffle=True)
     for index, sample in enumerate(loader):
         # sample是一个三个元素的tuple
