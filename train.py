@@ -33,18 +33,18 @@ def main():
     faster_rcnn = FasterRCNN(path).to(device)
     trainer = FasterRCNNTrainer(faster_rcnn)
     # 训练集
-    trainvalset = ImageDataset('./kitti/Annotations/', './kitti/JPEGImages/data_object_image_2/training/image_2/',
-                               './kitti/ImageSets/Main/', 'trainval.txt')
+    trainvalset = ImageDataset(xml_root_dir='./kitti/Annotations/', img_root_dir='./kitti/JPEGImages/training/',
+                               txt_root_dir='./kitti/ImageSets/Main/', txt_file='trainval.txt')
     trainvalLoader = DataLoader(trainvalset, batch_size=1, shuffle=True, num_workers=0)
     # 测试集
-    testset = ImageDataset('./kitti/Annotations/', './kitti/JPEGImages/data_object_image_2/training/image_2/',
-                           './kitti/ImageSets/Main/', 'test.txt')
+    testset = ImageDataset(xml_root_dir='./kitti/Annotations/', img_root_dir='./kitti/JPEGImages/testing/',
+                           txt_root_dir='./kitti/ImageSets/Main/', txt_file='test.txt')
     testLoader = DataLoader(testset, batch_size=1, shuffle=True, num_workers=0)
     trainer = trainer.to(device)
 
     already_trained_epoch = 0
     if already_trained_epoch != 0:
-        file_name = "fasterrcnn_06101508-epoch-6-trainloss-0.204testloss-0.820"
+        file_name = "fasterrcnn_06101531-epoch-8-trainloss-0.192testloss-0.816"
         load_path = 'checkpoints/' + file_name
         trainer.load(load_path)
         print("trained model loaded")

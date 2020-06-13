@@ -4,7 +4,6 @@ import os
 from data.process_data import parse_xml
 import numpy as np
 from PIL import Image
-import torch
 
 
 class ImageDataset(Dataset):
@@ -18,8 +17,8 @@ class ImageDataset(Dataset):
         if transform == None:
             self.transform = transforms.Compose([
                 lambda x: Image.open(x).convert('RGB'),
-                # 为了适配vgg16的输入
-                transforms.Resize((int(224), int(224))),
+                # TODO BUG的根源... 为了适配vgg16的输入
+                # transforms.Resize((int(224), int(224))),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     [0.485, 0.456, 0.406],

@@ -110,8 +110,8 @@ if __name__ == '__main__':
     faster_rcnn = FasterRCNN(path).to(device)
     trainer = FasterRCNNTrainer(faster_rcnn)
     # TODO 凭什么这里加的是相对faster_rcnn_trainer.py的文件
-    dataset = ImageDataset('./kitti/Annotations/', './kitti/JPEGImages/data_object_image_2/training/image_2/',
-                           './kitti/ImageSets/Main/', 'train.txt')
+    dataset = ImageDataset(xml_root_dir='./kitti/Annotations/', img_root_dir='./kitti/JPEGImages/training/',
+                           txt_root_dir='./kitti/ImageSets/Main/', txt_file='train.txt')
     loader = DataLoader(dataset, batch_size=1, shuffle=True)
     for epoch in range(epochs):
         for i, sample in enumerate(loader):

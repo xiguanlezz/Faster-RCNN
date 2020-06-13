@@ -5,7 +5,7 @@ import torch
 
 def decom_VGG16(path):
     model = load_pretrained_vgg16(path)
-    print(model)
+    # print(model)
     # 拿出vgg16模型的前30层来进行特征提取
     features = list(model.features)[:30]
     features = nn.Sequential(*features)
@@ -34,7 +34,9 @@ def load_pretrained_vgg16(path):
 
 if __name__ == '__main__':
     path = '../vgg16-397923af.pth'
+    x = torch.rand((1, 3, 700, 850))  # 第一张图片
     # model = torch.load(path)
-    # vgg16_model = models.vgg16().load_state_dict(model)
-    vgg16_model = load_pretrained_vgg16(path)
-    print(vgg16_model)
+    # vgg16 = models.vgg16()
+    # vgg16.load_state_dict(torch.load(path))
+    exec, _ = decom_VGG16(path)
+    print(exec(x).shape)
