@@ -1,14 +1,21 @@
-# 类名
-class_num = 7
-KITTI_BBOX_LABEL_NAMES = (
-    'pedestrian',
-    'truck',
-    'car',
-    'cyclist',
-    'van',
-    'tram',
-    'person_sitting'
+# 数据集部分配置(需要先提前改为VOC数据格式)
+# 分类总数
+class_num = 20
+# 类别, label从1开始, 0表示背景
+classes = (
+    'person',
+    'bird', 'cat', 'cow', 'dog', 'horse', 'sheep',
+    'aeroplane', 'bicycle', 'boat', 'bus', 'car', 'motorbike', 'train',
+    'bottle', 'chair', 'diningtable', 'pottedplant', 'sofa', 'tvmonitor'
 )
+# xml文件根路径
+xml_root_dir = './VOC2007/Annotations/'
+# img图片根路径, 后面需要自己根据是训练集还是测试集手动拼接上URI
+img_root_dir = './VOC2007/JPEGImages/'
+# 训练的txt根路径
+txt_root_dir = './VOC2007/ImageSets/Main/'
+
+
 
 epochs = 5
 # 学习率

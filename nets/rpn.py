@@ -72,8 +72,8 @@ class RPN(nn.Module):
         # [n, 2*k, w, h] -> [n, w, h, 2*k] -> [n, w*h*k, 2]
         rpn_scores = rpn_scores.permute(0, 2, 3, 1).contiguous().view(n, -1, 2)
 
-        print('rpn_locs: ', rpn_locs.shape)
-        print('rpn_scores: ', rpn_scores.shape)
+        # print('rpn_locs: ', rpn_locs.shape)
+        # print('rpn_scores: ', rpn_scores.shape)
 
         # 根据rpn回归的结果对anchors微调以及裁剪之后转为rois, 同时提供rois给Fast-RCNN部分
         rois = self.proposal_layer(rpn_locs[0].detach().cpu().numpy(),

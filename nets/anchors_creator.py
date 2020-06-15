@@ -44,7 +44,7 @@ def enumerate_shifted_anchor(base_anchor, base_size, width, height):
     # 计算featuremap中每个像素点在原图中感受野上的中心点坐标
     shift_x = np.arange(0, width * base_size, base_size)
     shift_y = np.arange(0, height * base_size, base_size)
-    print('shift_x: ', shift_x.shape, 'shift_y: ', shift_y.shape)
+    # print('shift_x: ', shift_x.shape, 'shift_y: ', shift_y.shape)
 
     # TODO 感觉最正统的方法还是遍历中心点
     # index = 0

@@ -91,11 +91,9 @@ def calculate_iou(valid_anchors, boxes):
     ious.fill(0)
     # 命名规则: 左上角为1, 右下角为2
     for i, point_i in enumerate(valid_anchors):
-        print(point_i)
         xa1, ya1, xa2, ya2 = point_i
         anchor_area = (ya2 - ya1) * (xa2 - xa1)
         for j, point_j in enumerate(boxes):
-            print(point_j)
             xb1, yb1, xb2, yb2 = point_j
             box_area = (yb2 - yb1) * (xb2 - xb1)
 

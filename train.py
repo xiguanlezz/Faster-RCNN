@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 import torch
 from tqdm import tqdm
 import time
+from configs.config import xml_root_dir, img_root_dir, txt_root_dir
 
 
 @torch.no_grad()
@@ -27,18 +28,18 @@ def evaluate_test_data(testLoader, trainer):
 
 
 def main():
-    device = torch.device('cuda')
-    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # python的三目运算符
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     path = 'pre_model_weights/vgg16-397923af.pth'
     faster_rcnn = FasterRCNN(path).to(device)
     trainer = FasterRCNNTrainer(faster_rcnn)
     # 训练集
-    trainvalset = ImageDataset(xml_root_dir='./kitti/Annotations/', img_root_dir='./kitti/JPEGImages/training/',
-                               txt_root_dir='./kitti/ImageSets/Main/', txt_file='trainval.txt')
+    trainvalset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'resize_trainval/',
+                               txt_root_dir=txt_root_dir, txt_file='trainval.txt')
     trainvalLoader = DataLoader(trainvalset, batch_size=1, shuffle=True, num_workers=0)
     # 测试集
-    testset = ImageDataset(xml_root_dir='./kitti/Annotations/', img_root_dir='./kitti/JPEGImages/testing/',
-                           txt_root_dir='./kitti/ImageSets/Main/', txt_file='test.txt')
+    testset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'resize_test/',
+                           txt_root_dir=txt_root_dir, txt_file='test.txt')
     testLoader = DataLoader(testset, batch_size=1, shuffle=True, num_workers=0)
     trainer = trainer.to(device)
 
@@ -51,11 +52,10 @@ def main():
         print("loaded model lr: ", trainer.optimizer.param_groups[0]["lr"])  # 导入模型的学习率
 
     # 调节学习率
-    change_lr = True
+    change_lr = False
     if change_lr:
-        scale = 0.4  # new_lr = lr* scale
+        scale = 0.1  # new_lr = lr* scale
         trainer.scale_lr(scale)
-        print("learning rate be smaller")
 
     total_epochs = 20
 
@@ -64,7 +64,6 @@ def main():
         epoch_loss = 0.0
 
         for i, sample in tqdm(enumerate(trainvalLoader)):
-            # print(sample["img_tensor"].size)
             x = sample["img_tensor"].to(device)
             gt_boxes = sample["img_gt_boxes"].to(device)
             labels = sample["img_classes"].to(device)
