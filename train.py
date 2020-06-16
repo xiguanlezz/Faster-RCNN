@@ -38,8 +38,8 @@ def main():
                                txt_root_dir=txt_root_dir, txt_file='trainval.txt')
     trainvalLoader = DataLoader(trainvalset, batch_size=1, shuffle=True, num_workers=0)
     # 测试集
-    testset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'resize_test/',
-                           txt_root_dir=txt_root_dir, txt_file='test.txt')
+    testset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'resize_train_test/',
+                           txt_root_dir=txt_root_dir, txt_file='train_test.txt')
     testLoader = DataLoader(testset, batch_size=1, shuffle=True, num_workers=0)
     trainer = trainer.to(device)
 
@@ -69,6 +69,7 @@ def main():
             labels = sample["img_classes"].to(device)
 
             loss = trainer.train_step(x, gt_boxes, labels)
+            print('------', loss)
             epoch_loss += loss
 
         avg_epoch_loss = epoch_loss * 1.0 / len(trainvalLoader)  # epoch平均loss

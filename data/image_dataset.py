@@ -7,13 +7,14 @@ from PIL import Image
 
 
 class ImageDataset(Dataset):
-    def __init__(self, xml_root_dir, img_root_dir, txt_root_dir, txt_file, transform=None):
+    def __init__(self, xml_root_dir, img_root_dir, txt_root_dir, txt_file, isTest=False, transform=None):
         super(ImageDataset, self).__init__()
 
         self.xml_root_dir = xml_root_dir
         self.img_root_dir = img_root_dir
         self.txt_root_dir = txt_root_dir
         self.txt_file = txt_file
+        self.isTest = isTest
         if transform == None:
             self.transform = transforms.Compose([
                 # TODO BUG的根源... 为了适配vgg16的输入
@@ -23,11 +24,14 @@ class ImageDataset(Dataset):
                     [0.485, 0.456, 0.406],
                     [0.229, 0.224, 0.225])
             ])
-        boxes, labels, images = self.load_txt(self.txt_file)
-        self.boxes = boxes
-        self.labels = labels
-        self.images = images
-        # self.filenames = filenames
+        if self.isTest == False:
+            boxes, labels, images = self.load_txt(self.txt_file)
+            self.boxes = boxes
+            self.labels = labels
+            self.images = images
+        elif self.isTest == True:
+            self.images = self.load_txt(self.txt_file)
+
         id_list_files = os.path.join(txt_root_dir, txt_file)
         self.ids = [id_.strip() for id_ in open(id_list_files)]
 
@@ -44,17 +48,26 @@ class ImageDataset(Dataset):
         print(os.path.join(self.txt_root_dir, filename))
         with open(os.path.join(self.txt_root_dir, filename), mode='r') as f:
             lines = f.readlines()
-            index = 0
+            # index = 0
             for line in lines:
-                box, label, image = self.load_xml(line.strip() + ".xml")
-                boxes.append(box)
-                labels.append(label)
+                line = line.strip()
+                if self.isTest == False:
+                    box, label, image = self.load_xml(line + ".xml")
+                    boxes.append(box)
+                    labels.append(label)
+                    # index += 1
+                elif self.isTest == True:
+                    image = (line + ".jpg")
+                    # image = line.replace("\n", ".jpg")
                 images.append(image)
-                index += 1
-        print('the length of boxes is ', len(boxes))
-        print('the length of labels is ', len(labels))
-        print('the length of images is ', len(images))
-        return boxes, labels, images
+
+        if self.isTest == False:
+            print('the length of boxes is ', len(boxes))
+            print('the length of labels is ', len(labels))
+            print('the length of images is ', len(images))
+            return boxes, labels, images
+        elif self.isTest == True:
+            return images
 
     def load_xml(self, filename):
         """
@@ -77,15 +90,25 @@ class ImageDataset(Dataset):
         return len(self.images)
 
     def __getitem__(self, index):
-        id = self.ids[index]
-        box, label, image = self.load_xml('{0}.xml'.format(id))
-        img_tensor = self.transform(image)
-        return {
-            "img_name": id + ".png",
-            "img_tensor": img_tensor,
-            "img_classes": label,
-            "img_gt_boxes": box
-        }
+        if self.isTest == False:
+            id = self.ids[index]
+            box, label, image = self.load_xml('{0}.xml'.format(id))
+            img_tensor = self.transform(image)
+            return {
+                "img_name": id + ".png",
+                "img_tensor": img_tensor,
+                "img_classes": label,
+                "img_gt_boxes": box
+            }
+        elif self.isTest == True:
+            img = Image.open(self.img_root_dir + self.images[index])
+            img_tensor = self.transform(img)
+            return {
+                "img_name": self.images[index] + ".png",
+                "img_tensor": img_tensor,
+                # "img_classes": label,
+                # "img_gt_boxes": box
+            }
 
 
 if __name__ == '__main__':

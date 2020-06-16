@@ -8,9 +8,9 @@ from nets.fast_rcnn import FastRCNN
 from utils.util import loc_loss
 from collections import namedtuple
 import torch
-from configs.config import class_num
 from utils.util import loc2box, non_maximum_suppression
 import numpy as np
+from configs.config import class_num
 
 LossTuple = namedtuple('LossTuple',
                        ['rpn_loc_loss',
@@ -129,7 +129,7 @@ class FasterRCNN(nn.Module):
         label = list()
         score = list()
 
-        for i in range(1, 7):
+        for i in range(1, class_num):
             box_i = raw_boxes.reshape((-1, n_class, 4))
             box_i = box_i[:, i, :]  # 维度为: [rois_num, k, 4]
             prob_i = raw_prob[:, i]  # 维度为: [rois_num]
