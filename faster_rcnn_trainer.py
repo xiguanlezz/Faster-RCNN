@@ -65,7 +65,7 @@ class FasterRCNNTrainer(nn.Module):
 
         if save_path is None:
             timestr = time.strftime('%m%d%H%M')
-            save_path = 'checkpoints/fasterrcnn_%s' % self.optimizer.param_groups[0]["lr"]
+            save_path = 'checkpoints/fasterrcnn_lr=%s' % self.optimizer.param_groups[0]["lr"]
             save_path += '-epoch-%d' % (epoch)
             save_path += '-trainloss-%.3f' % (avg_train_loss)
             save_path += 'testloss-%.3f' % (avg_test_loss)

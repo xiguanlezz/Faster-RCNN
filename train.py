@@ -57,7 +57,7 @@ def main():
         scale = 0.1  # new_lr = lr* scale
         trainer.scale_lr(scale)
 
-    total_epochs = 20
+    total_epochs = 5
 
     for epoch in range(total_epochs):
         start = time.time()
@@ -69,7 +69,7 @@ def main():
             labels = sample["img_classes"].to(device)
 
             loss = trainer.train_step(x, gt_boxes, labels)
-            print('------', loss)
+            # print('------', loss)
             epoch_loss += loss
 
         avg_epoch_loss = epoch_loss * 1.0 / len(trainvalLoader)  # epoch平均loss

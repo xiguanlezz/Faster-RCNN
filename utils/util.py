@@ -84,44 +84,42 @@ def calculate_iou(valid_anchors, boxes):
     :return:
         ious: 每个inside_anchors和boxes的iou的二维张量, 维度为: [valid_anchors_num, boxes_num]
     """
-
-    # boxes = boxes.detach().cpu().numpy()
-    # TODO 常规思路---对于两个矩形的左上角取最大值, 对于右下角取最小值, 再判断内部的矩形是否存在即可
-    ious = np.empty((len(valid_anchors), len(boxes)), dtype=np.float32)
-    ious.fill(0)
+    # 常规思路---对于两个矩形的左上角取最大值, 对于右下角取最小值, 再判断内部的矩形是否存在即可(不可取, 会报错)
+    # ious = np.empty((len(valid_anchors), len(boxes)), dtype=np.float32)
+    # ious.fill(0)
     # 命名规则: 左上角为1, 右下角为2
-    for i, point_i in enumerate(valid_anchors):
-        xa1, ya1, xa2, ya2 = point_i
-        anchor_area = (ya2 - ya1) * (xa2 - xa1)
-        for j, point_j in enumerate(boxes):
-            xb1, yb1, xb2, yb2 = point_j
-            box_area = (yb2 - yb1) * (xb2 - xb1)
-
-            inter_x1 = max(xa1, xa2)
-            inter_y1 = max(ya1, ya2)
-            inter_x2 = min(xb1, xb2)
-            inter_y2 = min(yb1, yb2)
-            if inter_x1 < inter_x2 and inter_y1 < inter_y2:
-                overlap_area = (inter_x2 - inter_x1) * (inter_y2 - inter_y1)
-                iou = overlap_area * 1.0 / (anchor_area + box_area - overlap_area)
-            else:
-                iou = 0.
-            ious[i][j] = iou
+    # for i, point_i in enumerate(valid_anchors):
+    #     xa1, ya1, xa2, ya2 = point_i
+    #     anchor_area = (ya2 - ya1) * (xa2 - xa1)
+    #     for j, point_j in enumerate(boxes):
+    #         xb1, yb1, xb2, yb2 = point_j
+    #         box_area = (yb2 - yb1) * (xb2 - xb1)
+    #
+    #         inter_x1 = max(xa1, xa2)
+    #         inter_y1 = max(ya1, ya2)
+    #         inter_x2 = min(xb1, xb2)
+    #         inter_y2 = min(yb1, yb2)
+    #         if inter_x1 < inter_x2 and inter_y1 < inter_y2:
+    #             overlap_area = (inter_x2 - inter_x1) * (inter_y2 - inter_y1)
+    #             iou = overlap_area * 1.0 / (anchor_area + box_area - overlap_area)
+    #         else:
+    #             iou = 0.
+    #         ious[i][j] = iou
 
     # TODO 直接张量运算
     # 获得重叠面积最大化的左上角点的坐标信息, 返回的维度是[inside_anchors_num, boxes_num, 2]
-    # tl = np.maximum(valid_anchors[:, None, :2], boxes[:, :2])
+    tl = np.maximum(valid_anchors[:, None, :2], boxes[:, :2])
     # 获得重叠面积最大化的右下角点的坐标信息, 返回的维度是[inside_anchors_num, boxes_num, 2]
-    # br = np.minimum(valid_anchors[:, None, 2:], boxes[:, 2:])
+    br = np.minimum(valid_anchors[:, None, 2:], boxes[:, 2:])
 
     # 计算重叠部分的面积, 返回的维度是[inside_anchors_num, boxes_num]
-    # area_overlap = np.prod(br - tl, axis=2) * (tl < br).all(axis=2)
+    area_overlap = np.prod(br - tl, axis=2) * (tl < br).all(axis=2)
     # 计算inside_anchors的面积, 返回的维度是[inside_anchors_num]
-    # area_1 = np.prod(valid_anchors[:, 2:] - valid_anchors[:, :2], axis=1)
+    area_1 = np.prod(valid_anchors[:, 2:] - valid_anchors[:, :2], axis=1)
     # 计算boxes的面积, 返回的维度是[boxes_num]
-    # area_2 = np.prod(boxes[:, 2:] - boxes[:, :2], axis=1)
+    area_2 = np.prod(boxes[:, 2:] - boxes[:, :2], axis=1)
     # area_1[:, None]表示将数组扩张一个维度即维度变为[inside_anchors, 1]
-    # ious = area_overlap / (area_1[:, None] + area_2 - area_overlap)
+    ious = area_overlap / (area_1[:, None] + area_2 - area_overlap)
     # 最后broadcast返回的维度是[inside_anchors_num, boxes_num]
     return ious
 
