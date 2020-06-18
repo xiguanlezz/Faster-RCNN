@@ -14,8 +14,7 @@ xml_root_dir = './VOC2007/Annotations/'
 img_root_dir = './VOC2007/JPEGImages/'
 # 训练的txt根路径
 txt_root_dir = './VOC2007/ImageSets/Main/'
-
-
+pic_format = '.jpg'
 
 epochs = 5
 # 学习率

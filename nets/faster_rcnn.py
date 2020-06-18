@@ -1,6 +1,6 @@
 from torch import nn
 import torch.nn.functional as F
-from nets.vgg16 import decom_VGG16
+from vgg16_to_rpn import decomVgg16
 from nets.rpn import RPN
 from nets.anchor_target_creator import AnchorTargetCreator
 from nets.proposal_target_creator import ProposalTargetCreator
@@ -27,7 +27,7 @@ class FasterRCNN(nn.Module):
     def __init__(self, path):
         super(FasterRCNN, self).__init__()
 
-        self.extractor, classifier = decom_VGG16(path)
+        self.extractor, classifier = decomVgg16(path)
         self.rpn = RPN()
         self.anchor_target_creator = AnchorTargetCreator()
         self.sample_rois = ProposalTargetCreator()
@@ -124,7 +124,7 @@ class FasterRCNN(nn.Module):
         # print(raw_prob.shape)
         score_thresh = 0.7
         nms_thresh = 0.3
-        n_class = 7
+        n_class = class_num
         box = list()
         label = list()
         score = list()

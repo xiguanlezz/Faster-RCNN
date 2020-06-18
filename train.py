@@ -28,6 +28,13 @@ def evaluate_test_data(testLoader, trainer):
 
 
 def main():
+    # 设置随机种子
+    seed = 12345
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+
     # python的三目运算符
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     path = 'pre_model_weights/vgg16-397923af.pth'
@@ -43,9 +50,9 @@ def main():
     testLoader = DataLoader(testset, batch_size=1, shuffle=True, num_workers=0)
     trainer = trainer.to(device)
 
-    already_trained_epoch = 0
+    already_trained_epoch = 1
     if already_trained_epoch != 0:
-        file_name = "fasterrcnn_06101531-epoch-8-trainloss-0.192testloss-0.816"
+        file_name = "fasterrcnn_lr=0.005-epoch-2-trainloss-0.768testloss-0.758"
         load_path = 'checkpoints/' + file_name
         trainer.load(load_path)
         print("trained model loaded")

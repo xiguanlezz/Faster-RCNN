@@ -61,10 +61,10 @@ def enumerate_shifted_anchor(base_anchor, base_size, width, height):
     # TODO 直接利用broadcast貌似也可以达到目的
     # shift_x.ravel()表示原地将为一维数组, shift的维度为: [feature_stride, 4]
     shift_x, shift_y = np.meshgrid(shift_x, shift_y)
-    shift = np.stack((shift_x.ravel(), shift_y.ravel(), shift_x.ravel(), shift_y.ravel(),), axis=1)
+    shift = np.stack((shift_x.ravel(), shift_y.ravel(), shift_x.ravel(), shift_y.ravel()), axis=1)
     A = base_anchor.shape[0]  # 9个先验框
     K = shift.shape[0]
-    anchor = base_anchor.reshape((1, A, 4)) + shift.reshape((K, 1, 4))
+    anchor = base_anchor.reshape((1, A, 4)) + shift.reshape((1, K, 4)).transpose((1, 0, 2))
     # 最后再合成为所有的先验框, 相当于对featuremap的每个像素点都生成k(9)个先验框(anchors)
     anchors = anchor.reshape((K * A, 4)).astype(np.float32)
     return anchors

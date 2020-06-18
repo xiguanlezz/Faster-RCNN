@@ -4,6 +4,7 @@ import os
 from data.process_data import parse_xml, reshape
 import numpy as np
 from PIL import Image
+from configs.config import pic_format
 
 
 class ImageDataset(Dataset):
@@ -57,7 +58,7 @@ class ImageDataset(Dataset):
                     labels.append(label)
                     # index += 1
                 elif self.isTest == True:
-                    image = (line + ".jpg")
+                    image = (line + pic_format)
                     # image = line.replace("\n", ".jpg")
                 images.append(image)
 
@@ -80,7 +81,7 @@ class ImageDataset(Dataset):
             return
 
         boxes, labels = parse_xml(path)
-        img_name = filename.replace(".xml", ".jpg")
+        img_name = filename.replace(".xml", pic_format)
         images, boxes = reshape(Image.open(self.img_root_dir + img_name), boxes)
         return np.stack(boxes).astype(np.float32), \
                np.stack(labels).astype(np.int32), \
@@ -95,7 +96,7 @@ class ImageDataset(Dataset):
             box, label, image = self.load_xml('{0}.xml'.format(id))
             img_tensor = self.transform(image)
             return {
-                "img_name": id + ".png",
+                "img_name": id + pic_format,
                 "img_tensor": img_tensor,
                 "img_classes": label,
                 "img_gt_boxes": box
@@ -104,7 +105,7 @@ class ImageDataset(Dataset):
             img = Image.open(self.img_root_dir + self.images[index])
             img_tensor = self.transform(img)
             return {
-                "img_name": self.images[index] + ".png",
+                "img_name": self.images[index],
                 "img_tensor": img_tensor,
                 # "img_classes": label,
                 # "img_gt_boxes": box
