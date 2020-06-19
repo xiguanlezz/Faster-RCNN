@@ -48,12 +48,14 @@ class FasterRCNN(nn.Module):
         # anchors维度为: [batch_size, w*h*k, 4], 类型是numpy数组
         # rois维度为: [w*h*k ,4]
         rpn_locs, rpn_scores, anchors, rois = self.rpn(h, img_size)
-        # gt_anchor_locs维度为: [anchors_num, 4], gt_anchor_labels维度为:[anchors_num, 1]
+        # gt_anchor_locs维度为: [anchors_num, 4], gt_anchor_labels维度为:[anchors_num]
+        # gt_anchor_labels这个labels如果为1表示先验框内有物体, 0表示先验框内没有物体
         gt_anchor_locs, gt_anchor_labels = self.anchor_target_creator(gt_boxes[0].detach().cpu().numpy(),
                                                                       anchors,
                                                                       img_size)
 
         # ----------------part 3: roi采样部分----------------------------
+        # gt_roi_labels这个labels表示rois所属类别
         sample_rois, gt_roi_labels, gt_roi_locs = self.sample_rois(rois,
                                                                    gt_boxes[0].detach().cpu().numpy(),
                                                                    labels[0].detach().cpu().numpy())
@@ -65,6 +67,7 @@ class FasterRCNN(nn.Module):
         # RPN LOSS
         gt_anchor_locs = torch.from_numpy(gt_anchor_locs).to(device)
         gt_anchor_labels = torch.from_numpy(gt_anchor_labels).long().to(device)
+        # rpn_scores[0]表示类别标签, rpn_scores[1]表示置信度
         rpn_cls_loss = F.cross_entropy(rpn_scores[0], gt_anchor_labels, ignore_index=-1)  # label值为-1的不参与loss值的计算
         rpn_loc_loss = loc_loss(rpn_locs[0], gt_anchor_locs, gt_anchor_labels, self.rpn_sigma)
 

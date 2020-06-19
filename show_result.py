@@ -9,8 +9,8 @@ from configs.config import xml_root_dir, img_root_dir, txt_root_dir
 
 path = './pre_model_weights/vgg16-397923af.pth'
 
-dataset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'resize_trainval/',
-                       txt_root_dir=txt_root_dir, txt_file='trainval.txt', isTest=True)
+dataset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'testing/',
+                       txt_root_dir=txt_root_dir, txt_file='test.txt', isTest=True)
 dataloader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0)
 
 device = torch.device('cuda')
@@ -23,10 +23,10 @@ already_trained = True
 
 if already_trained == True:
     # already_trained_epoch = 4
-    load_path = 'checkpoints/' + 'fasterrcnn_lr=0.005-epoch-3-trainloss-0.731testloss-0.752'
+    load_path = 'checkpoints/' + 'fasterrcnn_lr=0.005-epoch-2-trainloss-0.766testloss-0.737'
     trainer.load(load_path)
 
-dir_path = './VOC2007/JPEGImages/resize_trainval/'
+dir_path = './VOC2007/JPEGImages/testing/'
 for i, sample in tqdm(enumerate(dataloader)):
     x = sample["img_tensor"].to(device)
     # gt_boxes = sample["img_gt_boxes"].to(device)

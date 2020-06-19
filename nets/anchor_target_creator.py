@@ -23,14 +23,14 @@ class AnchorTargetCreator:
 
     def __call__(self, boxes, anchors, img_size):
         """
-        function description:
+        function description: 得到先验框对应的回归值和的labels
 
         :param boxes: 图片中真实框左上角和右下角的坐标, 维度: [boxes_num, 4]
         :param anchors: 根据featuremap生成的所有anchors的坐标, 维度: [anchors_num, 4]
         :param img_size: 原图的大小, 用来过滤掉出界的anchors
         :return:
             anchor_locs: 最终的坐标, 维度为[inside_anchors_num ,4]
-            anchor_labels: 最终的标签, 维度为[inside_anchors_num, 1]
+            anchor_labels: 最终的标签, 维度为[inside_anchors_num]
         """
         img_width, img_height = img_size
 
@@ -43,41 +43,17 @@ class AnchorTargetCreator:
         # 计算inside_anchors和对应iou最大的boxes的回归值
         locs = box2loc(inside_anchors, boxes[argmax_ious])
 
-        # 把inside_anchors重新展开回原来所有的anchors
-        anchor_labels = np.empty((len(anchors),), dtype=labels.dtype)
+        anchors_num = len(anchors)
+
+        # 把inside_anchors重新展开回原来所有的anchors方便计算第一部分关于先验框的loss
+        anchor_labels = np.empty((anchors_num,), dtype=labels.dtype)
         anchor_labels.fill(-1)
         anchor_labels[inside_index] = labels
-        # 利用broadcast重新展开locs
-        anchor_locs = np.empty((len(anchors),) + anchors.shape[1:], dtype=locs.dtype)
+        # 利用broadcast重新展开locs方便计算第一部分关于先验框的loss
+        anchor_locs = np.empty((anchors_num,) + locs.shape[1:], dtype=locs.dtype)
         anchor_locs.fill(0)
         anchor_locs[inside_index, :] = locs
         return anchor_locs, anchor_labels
-
-    def _calculate_iou(self, inside_anchors, boxes):
-        """
-        function description: 从二维iou张量中获得每个先验框对应的iou最大的真实框的索引以及相应iou的值
-
-        :param inside_anchors: 在图片内的先验框(anchors)
-        :param boxes: 图片中的真实框
-        :return:
-            argmax_ious: 每个inside_anchor对应所有boxes中的最高iou的索引, 维度为: [inside_anchors_num]
-            max_ious: 每个inside_anchor对应所有boxes中的最高iou, 维度为: [inside_anchors_num]
-            gt_argmax_ious: 每个box对应所有inside_anchors中的最高iou的索引, 维度为: [inside_anchors_num]
-        """
-        # 第一个维度是先验框的个数(inside_anchors_num), 第二个维度是真实框的个数(boxes_num)
-        ious = calculate_iou(inside_anchors, boxes)
-
-        argmax_ious = ious.argmax(axis=1)  # 维度为:[inside_num]
-        # 取到每个先验框对应的真实框最大的iou
-        # TODO 将第一个维度从np.arange(len(inside_anchors))改为np.arange(len(ious))
-        max_ious = ious[np.arange(len(ious)), argmax_ious]
-
-        gt_argmax_ious = ious.argmax(axis=0)  # 维度为:[boxes_num]
-        # 取到每个真实框对应的先验框最大的iou
-        gt_max_ious = ious[gt_argmax_ious, np.arange(ious.shape[1])]
-
-        gt_argmax_ious = np.where(ious == gt_max_ious)[0]
-        return argmax_ious, max_ious, gt_argmax_ious
 
     def _create_label(self, inside_anchors, boxes):
         """
@@ -121,3 +97,29 @@ class AnchorTargetCreator:
             disable_index = np.random.choice(neg_num, size=(len(neg_num) - neg_standard), replace=False)
             label[disable_index] = -1
         return argmax_ious, label
+
+    def _calculate_iou(self, inside_anchors, boxes):
+        """
+        function description: 从二维iou张量中获得每个先验框对应的iou最大的真实框的索引以及相应iou的值
+
+        :param inside_anchors: 在图片内的先验框(anchors)
+        :param boxes: 图片中的真实框
+        :return:
+            argmax_ious: 每个inside_anchor对应所有boxes中的最高iou的索引, 维度为: [inside_anchors_num]
+            max_ious: 每个inside_anchor对应所有boxes中的最高iou, 维度为: [inside_anchors_num]
+            gt_argmax_ious: 每个box对应所有inside_anchors中的最高iou的索引, 维度为: [inside_anchors_num]
+        """
+        # 第一个维度是先验框的个数(inside_anchors_num), 第二个维度是真实框的个数(boxes_num)
+        ious = calculate_iou(inside_anchors, boxes)
+
+        argmax_ious = ious.argmax(axis=1)  # 维度为:[inside_num]
+        # 取到每个先验框对应的真实框最大的iou
+        # TODO 将第一个维度从np.arange(len(inside_anchors))改为np.arange(len(ious))
+        max_ious = ious[np.arange(len(ious)), argmax_ious]
+
+        gt_argmax_ious = ious.argmax(axis=0)  # 维度为:[boxes_num]
+        # 取到每个真实框对应的先验框最大的iou
+        gt_max_ious = ious[gt_argmax_ious, np.arange(ious.shape[1])]
+
+        gt_argmax_ious = np.where(ious == gt_max_ious)[0]
+        return argmax_ious, max_ious, gt_argmax_ious

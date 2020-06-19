@@ -35,13 +35,13 @@ class ProposalTargetCreator:
                  loc_normalize_mean=(0., 0., 0., 0.),
                  loc_normalize_std=(0.1, 0.1, 0.2, 0.2)):
         """
-        function description:
+        function description: 得到采样后的rois, 及其对应的labels和回归值
 
-        :param rois:
-        :param boxes:
-        :param labels:
-        :param loc_normalize_mean:
-        :param loc_normalize_std:
+        :param rois: rpn输入的rois
+        :param boxes: 一幅图的位置标注
+        :param labels: 一幅图的类别标注
+        :param loc_normalize_mean: 均值
+        :param loc_normalize_std: 标准差
         :return:
         """
         n_bbox, _ = boxes.shape
@@ -50,10 +50,10 @@ class ProposalTargetCreator:
         pos_num = np.round(self.n_sample * self.pos_ratio)
 
         ious = calculate_iou(rois, boxes)
-        gt_assignment = ious.argmax(axis=1)  # 返回维度为[rois_num, 1]
+        gt_assignment = ious.argmax(axis=1)  # 返回维度为[rois_num]
         max_iou = ious.max(axis=1)
 
-        gt_roi_labels = labels[gt_assignment]  # 返回维度为[rois_num, 1]
+        gt_roi_labels = labels[gt_assignment]  # 返回维度为[rois_num]
 
         # 筛选出其中iou满足阈值的部分
         pos_index = np.where(max_iou >= self.pos_iou_thresh)[0]

@@ -50,7 +50,7 @@ def main():
     testLoader = DataLoader(testset, batch_size=1, shuffle=True, num_workers=0)
     trainer = trainer.to(device)
 
-    already_trained_epoch = 1
+    already_trained_epoch = 0
     if already_trained_epoch != 0:
         file_name = "fasterrcnn_lr=0.005-epoch-2-trainloss-0.768testloss-0.758"
         load_path = 'checkpoints/' + file_name

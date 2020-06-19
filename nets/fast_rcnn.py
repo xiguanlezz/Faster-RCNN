@@ -25,8 +25,8 @@ class FastRCNN(nn.Module):
         self.classifier = classifier
         self.cls_layer = nn.Linear(4096, n_class)
         self.reg_layer = nn.Linear(4096, n_class * 4)
-        normal_init(self.cls_layer, 0, 0.001)
-        normal_init(self.reg_layer, 0, 0.01)
+        normal_init(self.cls_layer, mean=0, stddev=0.001)
+        normal_init(self.reg_layer, mean=0, stddev=0.01)
         self.n_class = n_class
         self.roi_size = roi_size
         self.spatial_scale = spatial_scale
@@ -34,7 +34,7 @@ class FastRCNN(nn.Module):
 
     def forward(self, x, sample_rois):
         """
-        function decsription:
+        function decsription: Fast-RCNN的前向传播
 
         :param x: 预训练好的特征提取网络的输出即featuremap
         :param sample_rois: 经过NMS后的rois
@@ -42,10 +42,12 @@ class FastRCNN(nn.Module):
             roi_locs: roi的回归损失
             roi_scores: roi的分类损失
         """
+        # Roi pooling
         pool = self.roi(x, sample_rois)
+        # [n, 7, 7, 512] -> [n, 25088]  展平喂入全连接层
         pool = pool.view(pool.size(0), -1)
+        # vgg16最后的两层全连接层
         fc7 = self.classifier(pool)
-
         roi_scores = self.cls_layer(fc7)
         roi_locs = self.reg_layer(fc7)
         return roi_locs, roi_scores

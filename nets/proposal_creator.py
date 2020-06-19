@@ -60,6 +60,7 @@ class ProposalCreator:
         keep = np.where((roi_width >= min_size) & (roi_height >= min_size))[0]  # 得到满足条件的行index
         roi = roi[keep, :]
 
+        # 置信度
         scores = scores[:, 1]
         scores = scores[keep]
         # argsort()函数得到的是从小到大的索引, x[start:end:span]中如果span<0则逆序遍历; 如果span>0则顺序遍历
@@ -67,6 +68,7 @@ class ProposalCreator:
         # 保留分数排在前面的n_pre_nms个rois
         order = order[: n_pre_nms]
         roi = roi[order, :]
+        # roi = roi[order]
 
         # 非极大值抑制
         roi_after_nms, _ = non_maximum_suppression(roi, thresh=self.nms_thresh)
