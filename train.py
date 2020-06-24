@@ -41,11 +41,11 @@ def main():
     faster_rcnn = FasterRCNN(path).to(device)
     trainer = FasterRCNNTrainer(faster_rcnn)
     # 训练集
-    trainvalset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'resize_trainval/',
+    trainvalset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'training/',
                                txt_root_dir=txt_root_dir, txt_file='trainval.txt')
     trainvalLoader = DataLoader(trainvalset, batch_size=1, shuffle=True, num_workers=0)
     # 测试集
-    testset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'resize_train_test/',
+    testset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'training/',
                            txt_root_dir=txt_root_dir, txt_file='train_test.txt')
     testLoader = DataLoader(testset, batch_size=1, shuffle=True, num_workers=0)
     trainer = trainer.to(device)

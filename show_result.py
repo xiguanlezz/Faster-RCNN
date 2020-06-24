@@ -23,7 +23,7 @@ already_trained = True
 
 if already_trained == True:
     # already_trained_epoch = 4
-    load_path = 'checkpoints/' + 'fasterrcnn_lr=0.005-epoch-2-trainloss-0.766testloss-0.737'
+    load_path = 'checkpoints/' + 'fasterrcnn_0.005-epoch-4-trainloss-0.576testloss-0.638'
     trainer.load(load_path)
 
 dir_path = './VOC2007/JPEGImages/testing/'

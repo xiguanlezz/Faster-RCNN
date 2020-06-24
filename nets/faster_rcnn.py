@@ -1,6 +1,6 @@
 from torch import nn
 import torch.nn.functional as F
-from vgg16_to_rpn import decomVgg16
+from nets.vgg16 import decom_VGG16
 from nets.rpn import RPN
 from nets.anchor_target_creator import AnchorTargetCreator
 from nets.proposal_target_creator import ProposalTargetCreator
@@ -27,7 +27,7 @@ class FasterRCNN(nn.Module):
     def __init__(self, path):
         super(FasterRCNN, self).__init__()
 
-        self.extractor, classifier = decomVgg16(path)
+        self.extractor, classifier = decom_VGG16(path)
         self.rpn = RPN()
         self.anchor_target_creator = AnchorTargetCreator()
         self.sample_rois = ProposalTargetCreator()
@@ -62,7 +62,7 @@ class FasterRCNN(nn.Module):
 
         # ---------------part 4: fast rcnn(roi)部分(output_2)------------
         # roi_cls_locs维度为: [batch_size, 4], roi_scores维度为:[batch_size, 1]
-        roi_cls_locs, roi_scores = self.fast_rcnn(h, sample_rois)
+        roi_locs, roi_scores = self.fast_rcnn(h, sample_rois)
 
         # RPN LOSS
         gt_anchor_locs = torch.from_numpy(gt_anchor_locs).to(device)
@@ -75,8 +75,8 @@ class FasterRCNN(nn.Module):
         gt_roi_labels = torch.from_numpy(gt_roi_labels).long().to(device)
         gt_roi_locs = torch.from_numpy(gt_roi_locs).float().to(device)
         roi_cls_loss = F.cross_entropy(roi_scores, gt_roi_labels)
-        n_sample = roi_cls_locs.shape[0]  # batch_size
-        roi_cls_locs = roi_cls_locs.view(n_sample, -1, 4)
+        n_sample = roi_locs.shape[0]  # batch_size
+        roi_cls_locs = roi_locs.view(n_sample, -1, 4)
         roi_locs = roi_cls_locs[torch.arange(0, n_sample).long(), gt_roi_labels]
         roi_loc_loss = loc_loss(roi_locs.contiguous(), gt_roi_locs, gt_roi_labels, self.roi_sigma)
 
@@ -99,11 +99,11 @@ class FasterRCNN(nn.Module):
 
         # ------------------part 3: fast rcnn(roi)部分-------------------
         # 先经过Roi pooling层, 在经过两个全连接层
-        roi_cls_locs, roi_scores = self.fast_rcnn(h, np.asarray(rois))
-        n_sample = roi_cls_locs.shape[0]
+        roi_locs, roi_scores = self.fast_rcnn(h, np.asarray(rois))
+        n_sample = roi_locs.shape[0]
 
         # --------------------part 4:boxes生成部分-----------------------
-        roi_cls_locs = roi_cls_locs.view(n_sample, -1, 4)
+        roi_cls_locs = roi_locs.view(n_sample, -1, 4)
         rois = torch.from_numpy(rois).to(device)
         rois = rois.view(-1, 1, 4).expand_as(roi_cls_locs)
         boxes = loc2box(rois.cpu().numpy().reshape((-1, 4)), roi_cls_locs.cpu().numpy().reshape((-1, 4)))

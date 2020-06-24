@@ -5,10 +5,8 @@ import torch
 
 def decom_VGG16(path):
     model = load_pretrained_vgg16(path)
-    # print(model)
     # 拿出vgg16模型的前30层来进行特征提取
     features = list(model.features)[:30]
-    features = nn.Sequential(*features)
 
     # 获取vgg16的分类的那些层
     classifier = list(model.classifier)
@@ -22,6 +20,10 @@ def decom_VGG16(path):
     for layer in features[:10]:
         for p in layer.parameters():
             p.requires_grad = False
+
+    # TODO 将冻结后的vgg16提取网络组成Sequential
+    features = nn.Sequential(*features)
+
     return features, classifier
 
 

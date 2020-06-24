@@ -9,6 +9,16 @@ from configs.config import pic_format
 
 class ImageDataset(Dataset):
     def __init__(self, xml_root_dir, img_root_dir, txt_root_dir, txt_file, isTest=False, transform=None):
+        """
+        class description: 这个类已经将最小边缩放到600px了, 同时将训练集中标注的位置也等比例修改了
+
+        :param xml_root_dir: xml标注文件的根路径
+        :param img_root_dir: img图片的根路径
+        :param txt_root_dir: txt文件的根路径
+        :param txt_file: txt文件名
+        :param isTest: 标志是否是测试集
+        :param transform: 变换
+        """
         super(ImageDataset, self).__init__()
 
         self.xml_root_dir = xml_root_dir
@@ -95,6 +105,8 @@ class ImageDataset(Dataset):
             id = self.ids[index]
             box, label, image = self.load_xml('{0}.xml'.format(id))
             img_tensor = self.transform(image)
+            # [channel, height, width] -> [channel, width, height]
+            img_tensor = img_tensor.permute(0, 2, 1)
             return {
                 "img_name": id + pic_format,
                 "img_tensor": img_tensor,
@@ -104,11 +116,10 @@ class ImageDataset(Dataset):
         elif self.isTest == True:
             img = Image.open(self.img_root_dir + self.images[index])
             img_tensor = self.transform(img)
+            img_tensor = img_tensor.permute(0, 2, 1)
             return {
                 "img_name": self.images[index],
                 "img_tensor": img_tensor,
-                # "img_classes": label,
-                # "img_gt_boxes": box
             }
 
 
