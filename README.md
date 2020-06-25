@@ -8,6 +8,17 @@ python版本为**python3.7**(只要是3问题不大)  &ensp;&ensp;
 
 <br>
 
+## 代码结构：
+&ensp;&ensp;checkpoints：存放训练时每个epoch得到的权重(基本上一个权重都有1G多)的包。  <br>
+&ensp;&ensp;configs：存放配置文件的包。 <br>
+&ensp;&ensp;nets：网络结构的包。  <br>
+&ensp;&ensp;pre_model_weights：存放预训练的vgg16权重的包。  <br>
+&ensp;&ensp;show_result：预测时候生成图片保存的包。 <br>
+&ensp;&ensp;utils：一些工具函数。 <br>
+&ensp;&ensp;kitti：kitti数据集。 <br>
+
+<br>
+
 ## 数据集约定格式：  <br>
 训练所需要的数据集格式为VOC格式。 <br>
 
