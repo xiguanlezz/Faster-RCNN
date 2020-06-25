@@ -2,7 +2,7 @@
 pytorch实现的Faster-RCNN模型，参考了许多人写的代码积累起来的。
 
 环境：
-pytorch版本为1.5
+pytorch版本为1.5   &ensp;&ensp;
 python版本为python3.7(只要是3问题不大)
 
 <br>
@@ -39,6 +39,10 @@ VOCx  <br>
 &ensp;&ensp; ① 方法后缀名为_byTXT是根据txt标注生成txt文件同时生成xml标注, 这里注意要修改train_label_path为自己数据集中txt标注文件的绝对路径(process_data.py文件的最上方); <br> 
 &ensp;&ensp; ② 后缀名为_byXML是根据xml标注生成txt文件。  <br>
 
-2、
+2、修改配置文件中两个代表类名属性(一个是元组，一个是列表)以及class_num(总类别数, 而且对应类别的下标都是从1开始, 0表示背景), 都改为自己数据集中的类别即可。 <br>
+
+3、
+
+
   
   
