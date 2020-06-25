@@ -15,7 +15,12 @@ python版本为**python3.7**(只要是3问题不大)  &ensp;&ensp;
 &ensp;&ensp;pre_model_weights：存放预训练的vgg16权重的包。  <br>
 &ensp;&ensp;show_result：预测时候生成图片保存的包。 <br>
 &ensp;&ensp;utils：一些工具函数。 <br>
-&ensp;&ensp;kitti：kitti数据集。 <br>
+&ensp;&ensp;kitti：kitti数据集。  <br>
+
+## 博客地址：
+<a href="https://blog.csdn.net/cj1561435010/article/details/106649040">https://blog.csdn.net/cj1561435010/article/details/106649040</a> <br>
+
+<a href="https://blog.csdn.net/cj1561435010/article/details/106958266">https://blog.csdn.net/cj1561435010/article/details/106958266</a> <br>
 
 <br>
 
