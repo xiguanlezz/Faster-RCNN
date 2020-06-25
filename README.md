@@ -33,6 +33,7 @@ VOCx  <br>
 步骤： <br>
 1、写入训练的txt文件  <br>
 修改configs包下面的config文件中三个属性，如下图： <br>
+![image](https://github.com/xiguanlezz/Faster-RCNN/blob/master/img_for_readme/img1.png)
 
 
 然后根据自己的数据集的标注文件是怎么个形式选择执行data包下面process_data.py文件中的两个方法。  <br>
@@ -42,12 +43,18 @@ VOCx  <br>
 &ensp;&ensp; ② 后缀名为_byXML是根据xml标注生成txt文件。  <br>
 
 2、修改配置文件中两个代表类名属性(一个是元组，一个是列表)以及class_num(总类别数, 而且对应类别的下标都是从1开始, 0表示背景), 都改为自己数据集中的类别即可。 <br>
+![image](https://github.com/xiguanlezz/Faster-RCNN/blob/master/img_for_readme/img2.png)
 
 3、根据机子来修改下面的两个配置, 一个是vgg16预训练权重的路径, 另一个是device(再GPU上跑还是CPU上跑)。  <br>
+![image](https://github.com/xiguanlezz/Faster-RCNN/blob/master/img_for_readme/img3.png)
 
-4、点击nets包下面的train.py文件即开始训练。  <br>
+4、先根据下图修改配置, 再点击nets包下面的train.py文件即开始训练。  <br>
+![image](https://github.com/xiguanlezz/Faster-RCNN/blob/master/img_for_readme/img4.png)
+
 
 5、训练完成之后, 先根据下图修改配置, 再点击根目录下面的show_result.py文件即开始批量保存预测后的结果到show_result的文件夹下面。  <br>
+![image](https://github.com/xiguanlezz/Faster-RCNN/blob/master/img_for_readme/img5.png)
+
 
 
 
