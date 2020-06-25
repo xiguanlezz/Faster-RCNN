@@ -2,7 +2,7 @@ from lxml import etree as ET
 import glob
 import cv2
 import random
-from configs.config import classes, xml_root_dir, img_root_dir, txt_root_dir
+from configs.config import classes_for_label, xml_root_dir, img_root_dir, txt_root_dir, pic_format
 import numpy as np
 from PIL import Image
 
@@ -135,7 +135,7 @@ def parse_xml(filename):
         boxes.append([int(bndbox.find(tag).text) - 1 for tag in ('xmin', 'ymin', 'xmax', 'ymax')])
         label = obj.find('name').text.lower().strip()
         # label从1开始, 0表示背景
-        labels.append(classes.index(label) + 1)
+        labels.append(classes_for_label.index(label) + 1)
     return boxes, labels
 
 
@@ -146,7 +146,7 @@ def split_dataset_byTXT():
     trainval = open(txt_root_dir + 'trainval.txt', 'w')
     train = open(txt_root_dir + 'train.txt', 'w')
     val = open(txt_root_dir + 'val.txt', 'w')
-    test = open(txt_root_dir + 'test.txt', 'w')
+    test = open(txt_root_dir + 'train_test.txt', 'w')
 
     list_anno_files = glob.glob(train_label_path + "*")
     random.shuffle(list_anno_files)
@@ -168,21 +168,22 @@ def split_dataset_byTXT():
                     boxes.append(box)
                     typename.append(anno_new_infos[0])
 
-            filename = anno_file.split("\\")[-1].replace("txt", "png")
-            xmlpath = xml_root_dir + filename.replace("png", "xml")
-            imgpath = img_root_dir + filename
+            filename = anno_file.split("\\")[-1].replace(".txt", pic_format)
+            xmlpath = xml_root_dir + filename.replace(pic_format, ".xml")
+            imgpath = img_root_dir + 'training/' + filename
+            print(imgpath)
             saveimg = cv2.imread(imgpath)
             write_xml(filename, saveimg, typename, boxes, xmlpath)
 
             index += 1
             if index > len(list_anno_files) * 0.9:
-                test.write(filename.replace(".png", "\n"))
+                test.write(filename.replace(pic_format, "\n"))
             else:
-                trainval.write(filename.replace(".png", "\n"))
+                trainval.write(filename.replace(pic_format, "\n"))
                 if index > len(list_anno_files) * 0.7:
-                    val.write(filename.replace(".png", "\n"))
+                    val.write(filename.replace(pic_format, "\n"))
                 else:
-                    train.write(filename.replace(".png", "\n"))
+                    train.write(filename.replace(pic_format, "\n"))
 
     trainval.close()
     train.close()
@@ -203,21 +204,33 @@ def split_dataset_byXML():
     random.shuffle(list_anno_files)
     index = 0
     for anno_file in list_anno_files:
-        filename = anno_file.replace(".xml", ".png")
+        filename = anno_file.replace(".xml", pic_format)
         index += 1
         if index > len(list_anno_files) * 0.9:
-            train_test.write(filename.replace(".png", "\n"))
+            train_test.write(filename.replace(pic_format, "\n"))
         else:
-            trainval.write(filename.replace(".png", "\n"))
+            trainval.write(filename.replace(pic_format, "\n"))
             if index > len(list_anno_files) * 0.7:
-                val.write(filename.replace(".png", "\n"))
+                val.write(filename.replace(pic_format, "\n"))
             else:
-                train.write(filename.replace(".png", "\n"))
+                train.write(filename.replace(pic_format, "\n"))
 
     trainval.close()
     train.close()
     val.close()
     train_test.close()
+
+
+def generate_test_txt_byPIC():
+    imgpath = img_root_dir + 'testing/'
+    test = open(txt_root_dir + 'test.txt', 'w')
+    list_pic_files = glob.glob(imgpath + "*")
+    random.shuffle(list_pic_files)
+    for pic_file in list_pic_files:
+        filename = pic_file.split("\\")[-1]
+        test.write(filename.replace(pic_format, "\n"))
+
+    test.close()
 
 
 if __name__ == '__main__':

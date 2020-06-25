@@ -1,6 +1,7 @@
 from torchvision import models
 from torch import nn
 import torch
+from configs.config import pre_model_weights_path
 
 
 def decom_VGG16(path):
@@ -35,7 +36,7 @@ def load_pretrained_vgg16(path):
 
 
 if __name__ == '__main__':
-    path = '../vgg16-397923af.pth'
+    path = pre_model_weights_path + 'vgg16-397923af.pth'
     x = torch.rand((1, 3, 700, 850))  # 第一张图片
     # model = torch.load(path)
     # vgg16 = models.vgg16()

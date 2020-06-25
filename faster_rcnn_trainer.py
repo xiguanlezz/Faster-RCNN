@@ -5,7 +5,8 @@ import time
 import os
 from nets.faster_rcnn import FasterRCNN
 from data.image_dataset import ImageDataset
-from configs.config import epochs, lr, weight_decay
+from configs.config import epochs, lr, weight_decay, pre_model_weights_path, xml_root_dir, img_root_dir, txt_root_dir, \
+    device_name
 
 
 class FasterRCNNTrainer(nn.Module):
@@ -34,7 +35,6 @@ class FasterRCNNTrainer(nn.Module):
         function description: 将优化其中的学习率缩小为1/10
 
         :param decay: 放缩倍率
-        :return:
         """
         for param_group in self.optimizer.param_groups:
             param_group['lr'] *= decay
@@ -82,7 +82,6 @@ class FasterRCNNTrainer(nn.Module):
 
         :param path: 读取model的路径
         :param load_optimizer: 是否加载优化器
-        :return:
         """
         state_dict = torch.load(path)
         if 'model' in state_dict:
@@ -104,19 +103,18 @@ class FasterRCNNTrainer(nn.Module):
 
 
 if __name__ == '__main__':
-    device = torch.device('cuda')
-    path = 'pre_model_weights/vgg16-397923af.pth'
+    device = torch.device(device_name)
+    path = pre_model_weights_path + 'vgg16-397923af.pth'
     faster_rcnn = FasterRCNN(path).to(device)
     trainer = FasterRCNNTrainer(faster_rcnn)
     # TODO 凭什么这里加的是相对faster_rcnn_trainer.py的文件
-    dataset = ImageDataset(xml_root_dir='./kitti/Annotations/', img_root_dir='./kitti/JPEGImages/training/',
-                           txt_root_dir='./kitti/ImageSets/Main/', txt_file='train.txt')
+    dataset = ImageDataset(xml_root_dir=xml_root_dir, img_root_dir=img_root_dir + 'training/',
+                           txt_root_dir=txt_root_dir, txt_file='train.txt')
     loader = DataLoader(dataset, batch_size=1, shuffle=True)
     for epoch in range(epochs):
         for i, sample in enumerate(loader):
             x = sample['img_tensor'].to(device)
             gt_boxes = sample['img_gt_boxes'].to(device)
-            # print(gt_boxes)
             labels = sample['img_classes'].to(device)
             losses = trainer.train_step(x, gt_boxes, labels)
             print('after ', i, 'step: loss=', losses)

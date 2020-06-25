@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 import torch
 from tqdm import tqdm
 import time
-from configs.config import xml_root_dir, img_root_dir, txt_root_dir
+from configs.config import xml_root_dir, img_root_dir, txt_root_dir, device_name, pre_model_weights_path, epochs
 
 
 @torch.no_grad()
@@ -15,7 +15,7 @@ def evaluate_test_data(testLoader, trainer):
     """
     test_loss = 0.0
     counter = 0
-    device = torch.device('cuda')
+    device = torch.device(device_name)
     for i, sample in tqdm(enumerate(testLoader)):
         x = sample["img_tensor"].to(device)
         gt_boxes = sample["img_gt_boxes"].to(device)
@@ -36,8 +36,8 @@ def main():
         torch.cuda.manual_seed_all(seed)
 
     # python的三目运算符
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    path = 'pre_model_weights/vgg16-397923af.pth'
+    device = torch.device(device_name)
+    path = pre_model_weights_path + 'vgg16-397923af.pth'
     faster_rcnn = FasterRCNN(path).to(device)
     trainer = FasterRCNNTrainer(faster_rcnn)
     # 训练集
@@ -64,9 +64,8 @@ def main():
         scale = 0.1  # new_lr = lr* scale
         trainer.scale_lr(scale)
 
-    total_epochs = 5
 
-    for epoch in range(total_epochs):
+    for epoch in range(epochs):
         start = time.time()
         epoch_loss = 0.0
 
@@ -76,7 +75,6 @@ def main():
             labels = sample["img_classes"].to(device)
 
             loss = trainer.train_step(x, gt_boxes, labels)
-            # print('------', loss)
             epoch_loss += loss
 
         avg_epoch_loss = epoch_loss * 1.0 / len(trainvalLoader)  # epoch平均loss

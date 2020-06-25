@@ -2,19 +2,21 @@
 # 分类总数
 class_num = 20
 # 类别, label从1开始, 0表示背景
-classes = (
-    'person',
-    'bird', 'cat', 'cow', 'dog', 'horse', 'sheep',
-    'aeroplane', 'bicycle', 'boat', 'bus', 'car', 'motorbike', 'train',
-    'bottle', 'chair', 'diningtable', 'pottedplant', 'sofa', 'tvmonitor'
-)
+classes_for_label = (
+    'car', 'van', 'truck', 'pedestrian', 'person_sitting', 'cyclist', 'tram')
+classes_for_draw = [
+    'car', 'van', 'truck', 'pedestrian', 'person_sitting', 'cyclist', 'tram']
 # xml文件根路径
-xml_root_dir = 'D:/machineLearning/pycharmProjects/Faster-RCNN/VOC2007/Annotations/'
+xml_root_dir = 'D:/machineLearning/pycharmProjects/Faster-RCNN/kitti/Annotations/'
 # img图片根路径, 后面需要自己根据是训练集还是测试集手动拼接上URI
-img_root_dir = 'D:/machineLearning/pycharmProjects/Faster-RCNN/VOC2007/JPEGImages/'
+img_root_dir = 'D:/machineLearning/pycharmProjects/Faster-RCNN/kitti/JPEGImages/'
 # 训练的txt根路径
-txt_root_dir = 'D:/machineLearning/pycharmProjects/Faster-RCNN/VOC2007/ImageSets/Main/'
-pic_format = '.jpg'
+txt_root_dir = 'D:/machineLearning/pycharmProjects/Faster-RCNN/kitti/ImageSets/Main/'
+pic_format = '.png'
+
+device_name = 'cuda'
+
+pre_model_weights_path = 'D:/machineLearning/pycharmProjects/Faster-RCNN/pre_model_weights/'
 
 epochs = 5
 # 学习率
