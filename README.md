@@ -1,14 +1,14 @@
 # Faster-RCNN
 pytorch实现的Faster-RCNN模型，**参考了许多人写的代码积累起来的**。
 
-环境：
+## 环境：
 pytorch版本为**1.5**   &ensp;&ensp;
 python版本为**python3.7**(只要是3问题不大)  &ensp;&ensp;
 内存最好**32G**, 数据集的那个类用了空间换时间的思想, 本来需要频繁IO装载图片张量, 我写的是直接一次性全拉到内存, IO次数大大减少, 缩短了训练单张图片的时间。
 
 <br>
 
-数据集约定格式：  <br>
+## 数据集约定格式：  <br>
 训练所需要的数据集格式为VOC格式。 <br>
 
 VOCx  <br>
@@ -30,17 +30,17 @@ VOCx  <br>
   
 <br>
   
-步骤： <br>
+## 步骤： <br>
 1、写入训练的txt文件  <br>
-修改configs包下面的config文件中三个属性，如下图： <br>
+&ensp;&ensp; 修改configs包下面的config文件中三个属性，如下图： <br>
 ![image](https://github.com/xiguanlezz/Faster-RCNN/blob/master/img_for_readme/img1.png)
 
 
-然后根据自己的数据集的标注文件是怎么个形式选择执行data包下面process_data.py文件中的两个方法。  <br>
+&ensp;&ensp; 然后根据自己的数据集的标注文件是怎么个形式选择执行data包下面process_data.py文件中的两个方法。  <br>
 
-我这里写了两个方法：  <br>
-&ensp;&ensp; ① 方法后缀名为_byTXT是根据txt标注生成txt文件同时生成xml标注, 这里注意要修改train_label_path为自己数据集中txt标注文件的绝对路径(process_data.py文件的最上方); <br> 
-&ensp;&ensp; ② 后缀名为_byXML是根据xml标注生成txt文件。  <br>
+&ensp;&ensp; 我这里写了两个方法：  <br>
+&ensp;&ensp; &ensp;&ensp; ① 方法后缀名为_byTXT是根据txt标注生成txt文件同时生成xml标注, 这里注意要修改train_label_path为自己数据集中txt标注文件的绝对路径(process_data.py文件的最上方); <br> 
+&ensp;&ensp; &ensp;&ensp; ② 后缀名为_byXML是根据xml标注生成txt文件。  <br>
 
 2、修改配置文件中两个代表类名属性(一个是元组，一个是列表)以及class_num(总类别数, 而且对应类别的下标都是从1开始, 0表示背景), 都改为自己数据集中的类别即可。 <br>
 ![image](https://github.com/xiguanlezz/Faster-RCNN/blob/master/img_for_readme/img2.png)
