@@ -2,13 +2,11 @@ from lxml import etree as ET
 import glob
 import cv2
 import random
-from configs.config import classes
+from configs.config import classes, xml_root_dir, img_root_dir, txt_root_dir
 import numpy as np
 from PIL import Image
 
-xml_root_dir = '../kitti/Annotations/'
-img_root_dir = '../VOC2007/JPEGImages/'
-txt_root_dir = '../VOC2007/ImageSets/Main/'
+train_label_path = 'D:/machineLearning/pycharmProjects/Faster-RCNN/kitti/training_label/'
 
 
 def write_xml(filename, saveimg, typename, boxes, xmlpath):
@@ -16,7 +14,7 @@ def write_xml(filename, saveimg, typename, boxes, xmlpath):
     function description: 将txt的标注文件转为xml
 
     :param filename: 图片名
-    :param saveimg: opencv读取图片
+    :param saveimg: opencv读取图片张量
     :param typename: 类名
     :param boxes: 左上角和右下角坐标
     :param xmlpath: 保存的xml文件名
@@ -93,11 +91,11 @@ def reshape(img, box):
     """
     function description: 将图片最小边的长度缩放为600
 
-    :param img: 输入的源图片张量
+    :param img: 输入的原图片张量
     :param box: 原图片标注框的位置
     :return:
-         new_img: 将最小边放到600之后的新图片的张量
-         box: 将最小边放到600之后新的标注框位置
+         new_img: 将最小边放到600px之后的新图片的张量
+         box: 将最小边放到600px之后新的标注框位置
     """
     width, height = img.size
     min_side_length = height if width >= height else width  # python的三目运算符
@@ -141,21 +139,20 @@ def parse_xml(filename):
     return boxes, labels
 
 
-def split_dataset():
+def split_dataset_byTXT():
     """
-    function description: 将数据集切分为训练集, 验证集以及测试集, 并且写入相应的xml作为标注
+    function description: 根据总训练集标注的txt文件将其数据集切分为训练集, 验证集以及测试集, 并且写入相应的xml作为标注
     """
     trainval = open(txt_root_dir + 'trainval.txt', 'w')
     train = open(txt_root_dir + 'train.txt', 'w')
     val = open(txt_root_dir + 'val.txt', 'w')
     test = open(txt_root_dir + 'test.txt', 'w')
 
-    list_anno_files = glob.glob('../kitti/training_label/*')
+    list_anno_files = glob.glob(train_label_path + "*")
     random.shuffle(list_anno_files)
-    print(list_anno_files)
     index = 0
-    for file_path in list_anno_files:
-        with open(file_path) as file:
+    for anno_file in list_anno_files:
+        with open(anno_file) as file:
             boxes = []
             typename = []
 
@@ -171,9 +168,9 @@ def split_dataset():
                     boxes.append(box)
                     typename.append(anno_new_infos[0])
 
-            filename = file_path.split("\\")[-1].replace("txt", "png")
-            xmlpath = '../kitti/Annotations/' + filename.replace("png", "xml")
-            imgpath = '../kitti/JPEGImages/data_object_image_2/training/image_2/' + filename
+            filename = anno_file.split("\\")[-1].replace("txt", "png")
+            xmlpath = xml_root_dir + filename.replace("png", "xml")
+            imgpath = img_root_dir + filename
             saveimg = cv2.imread(imgpath)
             write_xml(filename, saveimg, typename, boxes, xmlpath)
 
@@ -186,10 +183,42 @@ def split_dataset():
                     val.write(filename.replace(".png", "\n"))
                 else:
                     train.write(filename.replace(".png", "\n"))
+
+    trainval.close()
     train.close()
     val.close()
     test.close()
 
 
+def split_dataset_byXML():
+    """
+    function description: 根据总训练集的XML标注文件将其切分为训练集, 验证集以及测试集
+    """
+    trainval = open(txt_root_dir + 'trainval.txt', 'w')
+    train = open(txt_root_dir + 'train.txt', 'w')
+    val = open(txt_root_dir + 'val.txt', 'w')
+    train_test = open(txt_root_dir + 'train_test.txt', 'w')
+
+    list_anno_files = glob.glob(xml_root_dir + "*")
+    random.shuffle(list_anno_files)
+    index = 0
+    for anno_file in list_anno_files:
+        filename = anno_file.replace(".xml", ".png")
+        index += 1
+        if index > len(list_anno_files) * 0.9:
+            train_test.write(filename.replace(".png", "\n"))
+        else:
+            trainval.write(filename.replace(".png", "\n"))
+            if index > len(list_anno_files) * 0.7:
+                val.write(filename.replace(".png", "\n"))
+            else:
+                train.write(filename.replace(".png", "\n"))
+
+    trainval.close()
+    train.close()
+    val.close()
+    train_test.close()
+
+
 if __name__ == '__main__':
-    split_dataset()
+    split_dataset_byTXT()

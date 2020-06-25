@@ -9,11 +9,11 @@ classes = (
     'bottle', 'chair', 'diningtable', 'pottedplant', 'sofa', 'tvmonitor'
 )
 # xml文件根路径
-xml_root_dir = './VOC2007/Annotations/'
+xml_root_dir = 'D:/machineLearning/pycharmProjects/Faster-RCNN/VOC2007/Annotations/'
 # img图片根路径, 后面需要自己根据是训练集还是测试集手动拼接上URI
-img_root_dir = './VOC2007/JPEGImages/'
+img_root_dir = 'D:/machineLearning/pycharmProjects/Faster-RCNN/VOC2007/JPEGImages/'
 # 训练的txt根路径
-txt_root_dir = './VOC2007/ImageSets/Main/'
+txt_root_dir = 'D:/machineLearning/pycharmProjects/Faster-RCNN/VOC2007/ImageSets/Main/'
 pic_format = '.jpg'
 
 epochs = 5
