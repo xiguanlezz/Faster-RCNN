@@ -10,7 +10,7 @@ from collections import namedtuple
 import torch
 from utils.util import loc2box, non_maximum_suppression
 import numpy as np
-from configs.config import class_num
+from configs.config import class_num, device_name
 
 LossTuple = namedtuple('LossTuple',
                        ['rpn_loc_loss',
@@ -20,7 +20,7 @@ LossTuple = namedtuple('LossTuple',
                         'total_loss'
                         ])
 
-device = torch.device("cuda")
+device = torch.device(device_name)
 
 
 class FasterRCNN(nn.Module):
