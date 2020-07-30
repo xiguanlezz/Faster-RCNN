@@ -67,7 +67,7 @@ class FasterRCNN(nn.Module):
         # RPN LOSS
         gt_anchor_locs = torch.from_numpy(gt_anchor_locs).to(device)
         gt_anchor_labels = torch.from_numpy(gt_anchor_labels).long().to(device)
-        # rpn_scores[0]表示类别标签, rpn_scores[1]表示置信度
+        # rpn_scores[0]维度为[batch_size, w*h*k, 2], 其中第三个维度为0表示区域没有object的置信度, 为1表示区域由object的置信度
         rpn_cls_loss = F.cross_entropy(rpn_scores[0], gt_anchor_labels, ignore_index=-1)  # label值为-1的不参与loss值的计算
         rpn_loc_loss = loc_loss(rpn_locs[0], gt_anchor_locs, gt_anchor_labels, self.rpn_sigma)
 

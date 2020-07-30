@@ -28,7 +28,7 @@ class RPN(nn.Module):
                                   padding=1)
 
         anchors_num = self.base_anchors.shape[0]
-        # 2 x k(9) scores, 分类预测, 第一个数表示预测框内部是否包含了物体, 1表示包含了物体; 第二个数表示置信度
+        # 2 x k(9) scores, 分类预测
         self.RPN_cls_layer = nn.Conv2d(in_channels=self.mid_channels, out_channels=anchors_num * 2, kernel_size=1,
                                        stride=1,
                                        padding=0)
